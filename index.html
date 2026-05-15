@@ -1,72 +1,180 @@
 <!doctype html>
-          <div class="label">Tổng tài sản</div>
-          <div class="value" id="kpiTotal">0</div>
-          <div class="note">Bao gồm thiết bị IT toàn công ty</div>
-        </div>
+<html lang="vi">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>IT Asset Manager - Việt Hồng</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="drawer-mask" id="drawerMask" onclick="toggleMenu(false)"></div>
+  <aside class="sidebar" id="sidebar">
+    <div class="brand">
+      <div class="logo">IT</div>
+      <div><h1>IT Asset Manager</h1><p>CÔNG TY TNHH MAY XK VIỆT HỒNG</p></div>
+    </div>
+    <div class="nav">
+      <button class="active" data-view="dashboard">📊 Tổng quan</button>
+      <button data-view="assets">💻 Tài sản</button>
+      <button data-view="departments">🏢 Phòng ban</button>
+      <button data-view="repairs">🛠️ Sửa chữa</button>
+      <button data-view="assignments">🔁 Cấp phát / Thu hồi</button>
+      <button data-view="reports">📄 Báo cáo</button>
+      <button data-view="settings">⚙️ Cấu hình API</button>
+    </div>
+    <div class="side-footer">
+      <b>Demo HTML thuần</b><br>
+      Dữ liệu demo chạy offline. Khi có Cloudflare Worker + D1, chỉ cần đổi API_BASE.
+    </div>
+  </aside>
 
-        <div class="card kpi">
-          <div class="label">Đang sử dụng</div>
-          <div class="value" id="kpiUse">0</div>
-          <div class="note">Đã cấp phát cho người dùng</div>
-        </div>
-
-        <div class="card kpi">
-          <div class="label">Đang sửa</div>
-          <div class="value" id="kpiRepair">0</div>
-          <div class="note">Cần IT xử lý / theo dõi</div>
-        </div>
-
-        <div class="card kpi">
-          <div class="label">Trong kho</div>
-          <div class="value" id="kpiStock">0</div>
-          <div class="note">Sẵn sàng cấp phát</div>
-        </div>
+  <main class="main">
+    <div class="topbar">
+      <div class="top-left">
+        <button class="btn ghost mobile-menu" onclick="toggleMenu(true)">☰</button>
+        <h2 id="pageTitle">Tổng quan tài sản IT</h2>
+        <p id="pageSub">Theo dõi máy tính, màn hình, máy in, camera, mạng và lịch sử sửa chữa.</p>
       </div>
+      <div class="top-actions">
+        <div class="pill" id="todayText"></div>
+        <button class="btn ghost" onclick="exportCsv()">⬇ Xuất CSV</button>
+        <button class="btn primary" onclick="openAssetModal()">+ Thêm tài sản</button>
+      </div>
+    </div>
 
+    <section class="view active" id="dashboard">
+      <div class="grid kpis">
+        <div class="card kpi"><div class="label">Tổng tài sản</div><div class="value" id="kpiTotal">0</div><div class="note">Bao gồm thiết bị IT toàn công ty</div></div>
+        <div class="card kpi"><div class="label">Đang sử dụng</div><div class="value" id="kpiUse">0</div><div class="note">Đã cấp phát cho người dùng</div></div>
+        <div class="card kpi"><div class="label">Đang sửa</div><div class="value" id="kpiRepair">0</div><div class="note">Cần IT xử lý / theo dõi</div></div>
+        <div class="card kpi"><div class="label">Trong kho</div><div class="value" id="kpiStock">0</div><div class="note">Sẵn sàng cấp phát</div></div>
+      </div>
       <div class="grid content">
         <div class="card section">
-          <div class="section-title">
-            <h3>Tài sản mới cập nhật</h3>
-            <small id="assetCountText"></small>
-          </div>
-
+          <div class="section-title"><h3>Tài sản mới cập nhật</h3><small id="assetCountText"></small></div>
           <div class="toolbar">
             <input class="field search" id="dashSearch" placeholder="Tìm mã, tên máy, người dùng, phòng ban..." oninput="renderDashboardTable()">
-
-            <select class="field" id="dashStatus" onchange="renderDashboardTable()">
-              <option value="">Tất cả trạng thái</option>
-            </select>
+            <select class="field" id="dashStatus" onchange="renderDashboardTable()"><option value="">Tất cả trạng thái</option></select>
           </div>
-
-          <div class="table-wrap">
-            <table>
-              <thead>
-                <tr>
-                  <th>Mã TS</th>
-                  <th>Loại</th>
-                  <th>Tên / cấu hình</th>
-                  <th>Phòng ban</th>
-                  <th>Người dùng</th>
-                  <th>Trạng thái</th>
-                </tr>
-              </thead>
-              <tbody id="dashRows"></tbody>
-            </table>
-          </div>
+          <div class="table-wrap"><table><thead><tr><th>Mã TS</th><th>Loại</th><th>Tên / cấu hình</th><th>Phòng ban</th><th>Người dùng</th><th>Trạng thái</th></tr></thead><tbody id="dashRows"></tbody></table></div>
         </div>
-
         <div class="card section">
-          <div class="section-title">
-            <h3>Hoạt động gần đây</h3>
-            <small>Demo</small>
-          </div>
-
+          <div class="section-title"><h3>Hoạt động gần đây</h3><small>Demo</small></div>
           <div class="mini-list" id="activityList"></div>
         </div>
       </div>
     </section>
+
+    <section class="view" id="assets">
+      <div class="card section">
+        <div class="section-title"><h3>Danh sách tài sản</h3><small>lọc nhanh và thao tác</small></div>
+        <div class="toolbar">
+          <input class="field search" id="assetSearch" placeholder="Tìm mã, serial, người dùng..." oninput="renderAssets()">
+          <select class="field" id="filterType" onchange="renderAssets()"><option value="">Tất cả loại</option></select>
+          <select class="field" id="filterDept" onchange="renderAssets()"><option value="">Tất cả phòng ban</option></select>
+          <select class="field" id="filterStatus" onchange="renderAssets()"><option value="">Tất cả trạng thái</option></select>
+        </div>
+        <div class="table-wrap"><table><thead><tr><th>Mã</th><th>Loại</th><th>Tên tài sản</th><th>Serial</th><th>Phòng ban</th><th>Người dùng</th><th>Ngày mua</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody id="assetRows"></tbody></table></div>
+      </div>
+    </section>
+
+    <section class="view" id="departments">
+      <div class="hint"><b>Phòng ban đã bổ sung đủ theo cơ cấu công ty:</b> HCQT, Nhân sự, Kế toán, Kế hoạch, Kỹ thuật công nghệ, Kho NPL, Kho TP, Tổ cắt, Cơ điện, XN1, XN2, XN3. Trong demo Rocket thường thiếu các nhóm nhỏ như Bảo vệ, Tạp vụ, Nhà ăn, Thợ điện, Thợ máy và các tổ chuyền.</div>
+      <div class="grid dept-grid" id="deptGrid"></div>
+    </section>
+
+    <section class="view" id="repairs">
+      <div class="card section">
+        <div class="section-title"><h3>Theo dõi sửa chữa</h3><button class="btn blue" onclick="openRepairModal()">+ Ghi nhận sửa chữa</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Ngày</th><th>Mã tài sản</th><th>Nội dung lỗi</th><th>Người xử lý</th><th>Chi phí</th><th>Trạng thái</th></tr></thead><tbody id="repairRows"></tbody></table></div>
+      </div>
+    </section>
+
+    <section class="view" id="assignments">
+      <div class="card section">
+        <div class="section-title"><h3>Lịch sử cấp phát / thu hồi</h3><button class="btn blue" onclick="openAssignModal()">+ Tạo phiếu</button></div>
+        <div class="table-wrap"><table><thead><tr><th>Ngày</th><th>Mã tài sản</th><th>Loại phiếu</th><th>Người nhận / trả</th><th>Phòng ban</th><th>Ghi chú</th></tr></thead><tbody id="assignRows"></tbody></table></div>
+      </div>
+    </section>
+
+    <section class="view" id="reports">
+      <div class="card section">
+        <div class="section-title"><h3>Báo cáo nhanh</h3><small>có thể nối API xuất Excel sau</small></div>
+        <div class="grid dept-grid">
+          <div class="dept"><h4>Thiết bị theo phòng ban</h4><p>Kiểm kê số lượng từng phòng/xưởng.</p><button class="btn ghost" onclick="alert('Sau này gọi /api/reports/by-department')">Xem báo cáo</button></div>
+          <div class="dept"><h4>Tài sản đang sửa</h4><p>Lọc thiết bị quá hạn sửa chữa.</p><button class="btn ghost" onclick="setView('repairs')">Xem danh sách</button></div>
+          <div class="dept"><h4>Xuất kiểm kê CSV</h4><p>Xuất nhanh dữ liệu hiện tại.</p><button class="btn ghost" onclick="exportCsv()">Xuất CSV</button></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="view" id="settings">
+      <div class="card section">
+        <div class="section-title"><h3>Cấu hình Cloudflare Worker + D1</h3><small>demo</small></div>
+        <div class="hint">Khi tạo Worker thật, đổi API_BASE bên dưới thành domain Worker của bạn. Nếu API lỗi, web tự dùng dữ liệu demo để không trắng trang.</div>
+        <div class="form-grid">
+          <div class="form-group full"><label>API_BASE</label><input id="apiBaseInput" placeholder="https://itasset-api.hoalangiongxoai.workers.dev"></div>
+          <div class="form-group full"><label>Endpoint đề xuất</label><textarea rows="8" readonly>/api/assets
+/api/departments
+/api/repairs
+/api/assignments
+/api/dashboard
+/api/import-excel
+/api/export</textarea></div>
+        </div>
+        <div style="margin-top:14px"><button class="btn primary" onclick="saveApiBase()">Lưu cấu hình</button></div>
+      </div>
+    </section>
   </main>
 
+  <div class="modal" id="assetModal">
+    <div class="modal-box">
+      <div class="modal-head"><b id="assetModalTitle">Thêm tài sản</b><button class="btn ghost" onclick="closeModal('assetModal')">✕</button></div>
+      <div class="modal-body">
+        <div class="form-grid">
+          <div class="form-group"><label>Mã tài sản</label><input id="fCode" placeholder="IT-PC-001"></div>
+          <div class="form-group"><label>Loại</label><select id="fType"></select></div>
+          <div class="form-group full"><label>Tên / cấu hình</label><input id="fName" placeholder="PC Core i5, RAM 8GB, SSD 256GB"></div>
+          <div class="form-group"><label>Serial</label><input id="fSerial"></div>
+          <div class="form-group"><label>Phòng ban</label><select id="fDept"></select></div>
+          <div class="form-group"><label>Người dùng</label><input id="fUser"></div>
+          <div class="form-group"><label>Ngày mua</label><input id="fPurchase" type="date"></div>
+          <div class="form-group"><label>Trạng thái</label><select id="fStatus"></select></div>
+          <div class="form-group full"><label>Ghi chú</label><textarea id="fNote" rows="3"></textarea></div>
+        </div>
+      </div>
+      <div class="modal-foot"><button class="btn ghost" onclick="closeModal('assetModal')">Hủy</button><button class="btn primary" onclick="saveAsset()">Lưu tài sản</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="repairModal">
+    <div class="modal-box">
+      <div class="modal-head"><b>Ghi nhận sửa chữa</b><button class="btn ghost" onclick="closeModal('repairModal')">✕</button></div>
+      <div class="modal-body"><div class="form-grid">
+        <div class="form-group"><label>Mã tài sản</label><select id="rAsset"></select></div>
+        <div class="form-group"><label>Ngày</label><input id="rDate" type="date"></div>
+        <div class="form-group full"><label>Nội dung lỗi</label><input id="rIssue" placeholder="Không lên nguồn, lỗi ổ cứng..."></div>
+        <div class="form-group"><label>Người xử lý</label><input id="rTech" value="IT"></div>
+        <div class="form-group"><label>Chi phí</label><input id="rCost" type="number" value="0"></div>
+      </div></div>
+      <div class="modal-foot"><button class="btn ghost" onclick="closeModal('repairModal')">Hủy</button><button class="btn primary" onclick="saveRepair()">Lưu</button></div>
+    </div>
+  </div>
+
+  <div class="modal" id="assignModal">
+    <div class="modal-box">
+      <div class="modal-head"><b>Tạo phiếu cấp phát / thu hồi</b><button class="btn ghost" onclick="closeModal('assignModal')">✕</button></div>
+      <div class="modal-body"><div class="form-grid">
+        <div class="form-group"><label>Mã tài sản</label><select id="aAsset"></select></div>
+        <div class="form-group"><label>Ngày</label><input id="aDate" type="date"></div>
+        <div class="form-group"><label>Loại phiếu</label><select id="aType"><option>Cấp phát</option><option>Thu hồi</option><option>Điều chuyển</option></select></div>
+        <div class="form-group"><label>Người nhận / trả</label><input id="aUser"></div>
+        <div class="form-group"><label>Phòng ban</label><select id="aDept"></select></div>
+        <div class="form-group full"><label>Ghi chú</label><input id="aNote"></div>
+      </div></div>
+      <div class="modal-foot"><button class="btn ghost" onclick="closeModal('assignModal')">Hủy</button><button class="btn primary" onclick="saveAssignment()">Lưu phiếu</button></div>
+    </div>
+  </div>
   <script src="config.js"></script>
   <script src="app.js"></script>
 </body>
