@@ -1,387 +1,73 @@
 <!doctype html>
-<html lang="vi">
-<head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>IT Asset Manager - Việt Hồng</title>
-  <style>
-    :root{
-      --bg:#f4f7fb;
-      --card:#ffffff;
-      --text:#0f172a;
-      --muted:#64748b;
-      --line:#e2e8f0;
-      --primary:#0f766e;
-      --primary2:#14b8a6;
-      --blue:#2563eb;
-      --orange:#f97316;
-      --red:#ef4444;
-      --green:#16a34a;
-      --purple:#7c3aed;
-      --shadow:0 18px 45px rgba(15,23,42,.08);
-      --radius:18px;
-    }
-    *{box-sizing:border-box}
-    body{
-      margin:0;
-      font-family:Arial,"Helvetica Neue",sans-serif;
-      color:var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(20,184,166,.16), transparent 35%),
-        radial-gradient(circle at top right, rgba(37,99,235,.12), transparent 30%),
-        var(--bg);
-    }
-    button,input,select,textarea{font:inherit}
-    button{cursor:pointer}
-    .app{min-height:100vh;display:flex}
-    .sidebar{
-      width:270px;background:rgba(15,23,42,.96);color:white;padding:18px 14px;
-      position:fixed;inset:0 auto 0 0;z-index:20;box-shadow:12px 0 40px rgba(15,23,42,.16)
-    }
-    .brand{display:flex;gap:12px;align-items:center;padding:10px 10px 18px;border-bottom:1px solid rgba(255,255,255,.12)}
-    .logo{width:42px;height:42px;border-radius:14px;background:linear-gradient(135deg,#14b8a6,#2563eb);display:grid;place-items:center;font-weight:900}
-    .brand h1{font-size:17px;margin:0;line-height:1.2}.brand p{font-size:12px;margin:3px 0 0;color:#cbd5e1}
-    .nav{padding-top:14px;display:grid;gap:7px}.nav button{
-      width:100%;border:0;background:transparent;color:#cbd5e1;text-align:left;padding:12px 12px;border-radius:14px;display:flex;gap:10px;align-items:center
-    }
-    .nav button.active,.nav button:hover{background:rgba(20,184,166,.16);color:#fff}
-    .side-footer{position:absolute;left:14px;right:14px;bottom:14px;padding:13px;border-radius:16px;background:rgba(255,255,255,.08);font-size:12px;color:#cbd5e1;line-height:1.5}
-    .main{margin-left:270px;width:calc(100% - 270px);padding:22px}
-    .topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-bottom:18px}
-    .top-left h2{margin:0;font-size:26px;letter-spacing:-.4px}.top-left p{margin:6px 0 0;color:var(--muted)}
-    .top-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.pill{background:#fff;border:1px solid var(--line);padding:10px 13px;border-radius:999px;color:var(--muted);box-shadow:0 8px 22px rgba(15,23,42,.04)}
-    .btn{border:0;border-radius:13px;padding:11px 14px;font-weight:700;background:#e2e8f0;color:#0f172a}.btn.primary{background:linear-gradient(135deg,var(--primary),var(--primary2));color:white}.btn.blue{background:var(--blue);color:white}.btn.danger{background:#fee2e2;color:#991b1b}.btn.ghost{background:white;border:1px solid var(--line)}
-    .grid{display:grid;gap:16px}.kpis{grid-template-columns:repeat(4,minmax(0,1fr));margin-bottom:16px}.card{background:rgba(255,255,255,.88);border:1px solid rgba(226,232,240,.9);border-radius:var(--radius);box-shadow:var(--shadow)}
-    .kpi{padding:18px;position:relative;overflow:hidden}.kpi:after{content:"";position:absolute;right:-28px;top:-28px;width:90px;height:90px;border-radius:50%;background:rgba(20,184,166,.12)}
-    .kpi .label{color:var(--muted);font-size:13px}.kpi .value{font-size:30px;font-weight:900;margin-top:8px}.kpi .note{font-size:12px;margin-top:7px;color:var(--muted)}
-    .content{grid-template-columns:1.15fr .85fr}.section{padding:18px}.section-title{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:14px}.section-title h3{margin:0;font-size:18px}.section-title small{color:var(--muted)}
-    .toolbar{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px}.field{height:42px;border:1px solid var(--line);border-radius:12px;padding:0 12px;background:white;min-width:140px}.search{flex:1;min-width:220px}
-    table{width:100%;border-collapse:separate;border-spacing:0;font-size:14px}th,td{padding:12px;border-bottom:1px solid var(--line);text-align:left;vertical-align:middle}th{font-size:12px;color:var(--muted);text-transform:uppercase;background:#f8fafc;position:sticky;top:0;z-index:1}tbody tr:hover{background:#f8fafc}.table-wrap{max-height:520px;overflow:auto;border:1px solid var(--line);border-radius:16px;background:white}
-    .status{display:inline-flex;align-items:center;gap:6px;padding:6px 9px;border-radius:999px;font-size:12px;font-weight:700}.status.use{background:#dcfce7;color:#166534}.status.stock{background:#e0f2fe;color:#075985}.status.repair{background:#ffedd5;color:#9a3412}.status.lost{background:#fee2e2;color:#991b1b}.status.disposal{background:#f1f5f9;color:#475569}
-    .mini-list{display:grid;gap:10px}.activity{display:flex;gap:11px;padding:12px;border-radius:15px;background:#f8fafc;border:1px solid var(--line)}.dot{width:11px;height:11px;border-radius:999px;background:var(--primary);margin-top:4px;flex:0 0 auto}.activity b{display:block}.activity span{font-size:12px;color:var(--muted)}
-    .dept-grid{grid-template-columns:repeat(3,minmax(0,1fr))}.dept{padding:14px;border-radius:16px;background:#fff;border:1px solid var(--line)}.dept h4{margin:0 0 8px}.dept p{margin:0;color:var(--muted);font-size:13px}.dept .count{font-size:24px;font-weight:900;color:var(--primary);margin-top:10px}
-    .modal{position:fixed;inset:0;background:rgba(15,23,42,.55);display:none;align-items:center;justify-content:center;z-index:99;padding:16px}.modal.show{display:flex}.modal-box{width:min(820px,100%);max-height:92vh;overflow:auto;background:white;border-radius:22px;box-shadow:0 30px 90px rgba(0,0,0,.25)}.modal-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center}.modal-body{padding:20px}.form-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.form-group label{font-size:12px;color:var(--muted);font-weight:700;text-transform:uppercase}.form-group input,.form-group select,.form-group textarea{width:100%;margin-top:6px;border:1px solid var(--line);border-radius:13px;padding:11px 12px}.form-group.full{grid-column:1/-1}.modal-foot{padding:16px 20px;border-top:1px solid var(--line);display:flex;justify-content:flex-end;gap:10px}
-    .tabs{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}.tab{border:1px solid var(--line);background:white;padding:10px 12px;border-radius:999px;font-weight:700;color:var(--muted)}.tab.active{background:#0f766e;color:white;border-color:#0f766e}.view{display:none}.view.active{display:block}.hint{background:#fffbeb;border:1px solid #fde68a;color:#92400e;padding:12px 14px;border-radius:15px;margin-bottom:14px;line-height:1.45}
-    .mobile-menu{display:none}.drawer-mask{display:none}
-    @media(max-width:1100px){.kpis{grid-template-columns:repeat(2,1fr)}.content{grid-template-columns:1fr}.dept-grid{grid-template-columns:repeat(2,1fr)}}
-    @media(max-width:760px){.sidebar{transform:translateX(-110%);transition:.2s}.sidebar.open{transform:translateX(0)}.drawer-mask.show{display:block;position:fixed;inset:0;background:rgba(15,23,42,.5);z-index:19}.main{margin-left:0;width:100%;padding:14px}.mobile-menu{display:inline-flex}.topbar{align-items:flex-start}.top-actions{justify-content:flex-start}.kpis,.dept-grid,.form-grid{grid-template-columns:1fr}.top-left h2{font-size:22px}th,td{white-space:nowrap}.section{padding:14px}}
-  </style>
-</head>
-<body>
-  <div class="drawer-mask" id="drawerMask" onclick="toggleMenu(false)"></div>
-  <aside class="sidebar" id="sidebar">
-    <div class="brand">
-      <div class="logo">IT</div>
-      <div><h1>IT Asset Manager</h1><p>CÔNG TY TNHH MAY XK VIỆT HỒNG</p></div>
-    </div>
-    <div class="nav">
-      <button class="active" data-view="dashboard">📊 Tổng quan</button>
-      <button data-view="assets">💻 Tài sản</button>
-      <button data-view="departments">🏢 Phòng ban</button>
-      <button data-view="repairs">🛠️ Sửa chữa</button>
-      <button data-view="assignments">🔁 Cấp phát / Thu hồi</button>
-      <button data-view="reports">📄 Báo cáo</button>
-      <button data-view="settings">⚙️ Cấu hình API</button>
-    </div>
-    <div class="side-footer">
-      <b>Demo HTML thuần</b><br>
-      Dữ liệu demo chạy offline. Khi có Cloudflare Worker + D1, chỉ cần đổi API_BASE.
-    </div>
-  </aside>
+          <div class="label">Tổng tài sản</div>
+          <div class="value" id="kpiTotal">0</div>
+          <div class="note">Bao gồm thiết bị IT toàn công ty</div>
+        </div>
 
-  <main class="main">
-    <div class="topbar">
-      <div class="top-left">
-        <button class="btn ghost mobile-menu" onclick="toggleMenu(true)">☰</button>
-        <h2 id="pageTitle">Tổng quan tài sản IT</h2>
-        <p id="pageSub">Theo dõi máy tính, màn hình, máy in, camera, mạng và lịch sử sửa chữa.</p>
-      </div>
-      <div class="top-actions">
-        <div class="pill" id="todayText"></div>
-        <button class="btn ghost" onclick="exportCsv()">⬇ Xuất CSV</button>
-        <button class="btn primary" onclick="openAssetModal()">+ Thêm tài sản</button>
-      </div>
-    </div>
+        <div class="card kpi">
+          <div class="label">Đang sử dụng</div>
+          <div class="value" id="kpiUse">0</div>
+          <div class="note">Đã cấp phát cho người dùng</div>
+        </div>
 
-    <section class="view active" id="dashboard">
-      <div class="grid kpis">
-        <div class="card kpi"><div class="label">Tổng tài sản</div><div class="value" id="kpiTotal">0</div><div class="note">Bao gồm thiết bị IT toàn công ty</div></div>
-        <div class="card kpi"><div class="label">Đang sử dụng</div><div class="value" id="kpiUse">0</div><div class="note">Đã cấp phát cho người dùng</div></div>
-        <div class="card kpi"><div class="label">Đang sửa</div><div class="value" id="kpiRepair">0</div><div class="note">Cần IT xử lý / theo dõi</div></div>
-        <div class="card kpi"><div class="label">Trong kho</div><div class="value" id="kpiStock">0</div><div class="note">Sẵn sàng cấp phát</div></div>
+        <div class="card kpi">
+          <div class="label">Đang sửa</div>
+          <div class="value" id="kpiRepair">0</div>
+          <div class="note">Cần IT xử lý / theo dõi</div>
+        </div>
+
+        <div class="card kpi">
+          <div class="label">Trong kho</div>
+          <div class="value" id="kpiStock">0</div>
+          <div class="note">Sẵn sàng cấp phát</div>
+        </div>
       </div>
+
       <div class="grid content">
         <div class="card section">
-          <div class="section-title"><h3>Tài sản mới cập nhật</h3><small id="assetCountText"></small></div>
+          <div class="section-title">
+            <h3>Tài sản mới cập nhật</h3>
+            <small id="assetCountText"></small>
+          </div>
+
           <div class="toolbar">
             <input class="field search" id="dashSearch" placeholder="Tìm mã, tên máy, người dùng, phòng ban..." oninput="renderDashboardTable()">
-            <select class="field" id="dashStatus" onchange="renderDashboardTable()"><option value="">Tất cả trạng thái</option></select>
+
+            <select class="field" id="dashStatus" onchange="renderDashboardTable()">
+              <option value="">Tất cả trạng thái</option>
+            </select>
           </div>
-          <div class="table-wrap"><table><thead><tr><th>Mã TS</th><th>Loại</th><th>Tên / cấu hình</th><th>Phòng ban</th><th>Người dùng</th><th>Trạng thái</th></tr></thead><tbody id="dashRows"></tbody></table></div>
+
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Mã TS</th>
+                  <th>Loại</th>
+                  <th>Tên / cấu hình</th>
+                  <th>Phòng ban</th>
+                  <th>Người dùng</th>
+                  <th>Trạng thái</th>
+                </tr>
+              </thead>
+              <tbody id="dashRows"></tbody>
+            </table>
+          </div>
         </div>
+
         <div class="card section">
-          <div class="section-title"><h3>Hoạt động gần đây</h3><small>Demo</small></div>
+          <div class="section-title">
+            <h3>Hoạt động gần đây</h3>
+            <small>Demo</small>
+          </div>
+
           <div class="mini-list" id="activityList"></div>
         </div>
       </div>
     </section>
-
-    <section class="view" id="assets">
-      <div class="card section">
-        <div class="section-title"><h3>Danh sách tài sản</h3><small>lọc nhanh và thao tác</small></div>
-        <div class="toolbar">
-          <input class="field search" id="assetSearch" placeholder="Tìm mã, serial, người dùng..." oninput="renderAssets()">
-          <select class="field" id="filterType" onchange="renderAssets()"><option value="">Tất cả loại</option></select>
-          <select class="field" id="filterDept" onchange="renderAssets()"><option value="">Tất cả phòng ban</option></select>
-          <select class="field" id="filterStatus" onchange="renderAssets()"><option value="">Tất cả trạng thái</option></select>
-        </div>
-        <div class="table-wrap"><table><thead><tr><th>Mã</th><th>Loại</th><th>Tên tài sản</th><th>Serial</th><th>Phòng ban</th><th>Người dùng</th><th>Ngày mua</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody id="assetRows"></tbody></table></div>
-      </div>
-    </section>
-
-    <section class="view" id="departments">
-      <div class="hint"><b>Phòng ban đã bổ sung đủ theo cơ cấu công ty:</b> HCQT, Nhân sự, Kế toán, Kế hoạch, Kỹ thuật công nghệ, Kho NPL, Kho TP, Tổ cắt, Cơ điện, XN1, XN2, XN3. Trong demo Rocket thường thiếu các nhóm nhỏ như Bảo vệ, Tạp vụ, Nhà ăn, Thợ điện, Thợ máy và các tổ chuyền.</div>
-      <div class="grid dept-grid" id="deptGrid"></div>
-    </section>
-
-    <section class="view" id="repairs">
-      <div class="card section">
-        <div class="section-title"><h3>Theo dõi sửa chữa</h3><button class="btn blue" onclick="openRepairModal()">+ Ghi nhận sửa chữa</button></div>
-        <div class="table-wrap"><table><thead><tr><th>Ngày</th><th>Mã tài sản</th><th>Nội dung lỗi</th><th>Người xử lý</th><th>Chi phí</th><th>Trạng thái</th></tr></thead><tbody id="repairRows"></tbody></table></div>
-      </div>
-    </section>
-
-    <section class="view" id="assignments">
-      <div class="card section">
-        <div class="section-title"><h3>Lịch sử cấp phát / thu hồi</h3><button class="btn blue" onclick="openAssignModal()">+ Tạo phiếu</button></div>
-        <div class="table-wrap"><table><thead><tr><th>Ngày</th><th>Mã tài sản</th><th>Loại phiếu</th><th>Người nhận / trả</th><th>Phòng ban</th><th>Ghi chú</th></tr></thead><tbody id="assignRows"></tbody></table></div>
-      </div>
-    </section>
-
-    <section class="view" id="reports">
-      <div class="card section">
-        <div class="section-title"><h3>Báo cáo nhanh</h3><small>có thể nối API xuất Excel sau</small></div>
-        <div class="grid dept-grid">
-          <div class="dept"><h4>Thiết bị theo phòng ban</h4><p>Kiểm kê số lượng từng phòng/xưởng.</p><button class="btn ghost" onclick="alert('Sau này gọi /api/reports/by-department')">Xem báo cáo</button></div>
-          <div class="dept"><h4>Tài sản đang sửa</h4><p>Lọc thiết bị quá hạn sửa chữa.</p><button class="btn ghost" onclick="setView('repairs')">Xem danh sách</button></div>
-          <div class="dept"><h4>Xuất kiểm kê CSV</h4><p>Xuất nhanh dữ liệu hiện tại.</p><button class="btn ghost" onclick="exportCsv()">Xuất CSV</button></div>
-        </div>
-      </div>
-    </section>
-
-    <section class="view" id="settings">
-      <div class="card section">
-        <div class="section-title"><h3>Cấu hình Cloudflare Worker + D1</h3><small>demo</small></div>
-        <div class="hint">Khi tạo Worker thật, đổi API_BASE bên dưới thành domain Worker của bạn. Nếu API lỗi, web tự dùng dữ liệu demo để không trắng trang.</div>
-        <div class="form-grid">
-          <div class="form-group full"><label>API_BASE</label><input id="apiBaseInput" placeholder="https://itasset-api.hoalangiongxoai.workers.dev"></div>
-          <div class="form-group full"><label>Endpoint đề xuất</label><textarea rows="8" readonly>/api/assets
-/api/departments
-/api/repairs
-/api/assignments
-/api/dashboard
-/api/import-excel
-/api/export</textarea></div>
-        </div>
-        <div style="margin-top:14px"><button class="btn primary" onclick="saveApiBase()">Lưu cấu hình</button></div>
-      </div>
-    </section>
   </main>
 
-  <div class="modal" id="assetModal">
-    <div class="modal-box">
-      <div class="modal-head"><b id="assetModalTitle">Thêm tài sản</b><button class="btn ghost" onclick="closeModal('assetModal')">✕</button></div>
-      <div class="modal-body">
-        <div class="form-grid">
-          <div class="form-group"><label>Mã tài sản</label><input id="fCode" placeholder="IT-PC-001"></div>
-          <div class="form-group"><label>Loại</label><select id="fType"></select></div>
-          <div class="form-group full"><label>Tên / cấu hình</label><input id="fName" placeholder="PC Core i5, RAM 8GB, SSD 256GB"></div>
-          <div class="form-group"><label>Serial</label><input id="fSerial"></div>
-          <div class="form-group"><label>Phòng ban</label><select id="fDept"></select></div>
-          <div class="form-group"><label>Người dùng</label><input id="fUser"></div>
-          <div class="form-group"><label>Ngày mua</label><input id="fPurchase" type="date"></div>
-          <div class="form-group"><label>Trạng thái</label><select id="fStatus"></select></div>
-          <div class="form-group full"><label>Ghi chú</label><textarea id="fNote" rows="3"></textarea></div>
-        </div>
-      </div>
-      <div class="modal-foot"><button class="btn ghost" onclick="closeModal('assetModal')">Hủy</button><button class="btn primary" onclick="saveAsset()">Lưu tài sản</button></div>
-    </div>
-  </div>
-
-  <div class="modal" id="repairModal">
-    <div class="modal-box">
-      <div class="modal-head"><b>Ghi nhận sửa chữa</b><button class="btn ghost" onclick="closeModal('repairModal')">✕</button></div>
-      <div class="modal-body"><div class="form-grid">
-        <div class="form-group"><label>Mã tài sản</label><select id="rAsset"></select></div>
-        <div class="form-group"><label>Ngày</label><input id="rDate" type="date"></div>
-        <div class="form-group full"><label>Nội dung lỗi</label><input id="rIssue" placeholder="Không lên nguồn, lỗi ổ cứng..."></div>
-        <div class="form-group"><label>Người xử lý</label><input id="rTech" value="IT"></div>
-        <div class="form-group"><label>Chi phí</label><input id="rCost" type="number" value="0"></div>
-      </div></div>
-      <div class="modal-foot"><button class="btn ghost" onclick="closeModal('repairModal')">Hủy</button><button class="btn primary" onclick="saveRepair()">Lưu</button></div>
-    </div>
-  </div>
-
-  <div class="modal" id="assignModal">
-    <div class="modal-box">
-      <div class="modal-head"><b>Tạo phiếu cấp phát / thu hồi</b><button class="btn ghost" onclick="closeModal('assignModal')">✕</button></div>
-      <div class="modal-body"><div class="form-grid">
-        <div class="form-group"><label>Mã tài sản</label><select id="aAsset"></select></div>
-        <div class="form-group"><label>Ngày</label><input id="aDate" type="date"></div>
-        <div class="form-group"><label>Loại phiếu</label><select id="aType"><option>Cấp phát</option><option>Thu hồi</option><option>Điều chuyển</option></select></div>
-        <div class="form-group"><label>Người nhận / trả</label><input id="aUser"></div>
-        <div class="form-group"><label>Phòng ban</label><select id="aDept"></select></div>
-        <div class="form-group full"><label>Ghi chú</label><input id="aNote"></div>
-      </div></div>
-      <div class="modal-foot"><button class="btn ghost" onclick="closeModal('assignModal')">Hủy</button><button class="btn primary" onclick="saveAssignment()">Lưu phiếu</button></div>
-    </div>
-  </div>
-
-<script>
-const DEFAULT_API_BASE = localStorage.getItem('IT_ASSET_API_BASE') || '';
-let API_BASE = DEFAULT_API_BASE;
-const departments = [
-  {name:'Phòng hành chính quản trị', code:'HCQT', children:['Bảo vệ','Tạp vụ','Nhà ăn']},
-  {name:'Phòng nhân sự', code:'NS', children:[]},
-  {name:'Phòng kế toán', code:'KT', children:[]},
-  {name:'Phòng kế hoạch', code:'KH', children:[]},
-  {name:'Phòng kỹ thuật công nghệ', code:'KTCN', children:[]},
-  {name:'Kho NPL', code:'NPL', children:[]},
-  {name:'Kho thành phẩm', code:'TP', children:[]},
-  {name:'Tổ cắt', code:'CAT', children:[]},
-  {name:'Cơ điện', code:'CD', children:['Thợ điện','Thợ máy']},
-  {name:'XN1', code:'XN1', children:['Tổ 1','Tổ 3','Tổ 5','Tổ 7','Tổ 9']},
-  {name:'XN2', code:'XN2', children:['Tổ 11','Tổ 13','Tổ 15','Tổ 17']},
-  {name:'XN3', code:'XN3', children:['Tổ 19','Tổ 21','Tổ 23','Tổ 25','Tổ 27']}
-];
-const assetTypes = ['PC','Laptop','Màn hình','Máy in','Camera','Đầu ghi','Switch','Router/Wifi','UPS','Máy chấm công','Máy scan','Thiết bị khác'];
-const statuses = [
-  {value:'use', label:'Đang sử dụng'},
-  {value:'stock', label:'Trong kho'},
-  {value:'repair', label:'Đang sửa'},
-  {value:'lost', label:'Mất / thất lạc'},
-  {value:'disposal', label:'Thanh lý'}
-];
-let assets = [
-  {id:1, code:'IT-PC-001', type:'PC', name:'PC Core i5 / RAM 8GB / SSD 256GB', serial:'VH-PC001', dept:'Phòng nhân sự', user:'Nguyễn Thị A', purchase:'2024-01-15', status:'use', note:''},
-  {id:2, code:'IT-PR-002', type:'Máy in', name:'Canon LBP 2900', serial:'CN2900-02', dept:'Phòng kế toán', user:'Kế toán', purchase:'2023-08-20', status:'use', note:''},
-  {id:3, code:'IT-CAM-010', type:'Camera', name:'Hikvision IP 2MP khu vực cổng', serial:'HK010', dept:'Phòng hành chính quản trị', user:'Bảo vệ', purchase:'2023-11-02', status:'use', note:''},
-  {id:4, code:'IT-PC-014', type:'PC', name:'PC H81 / i3 / RAM 4GB / HDD 500GB', serial:'VH-PC014', dept:'XN1', user:'Tổ 1', purchase:'2020-04-05', status:'repair', note:'Nên nâng RAM/SSD'},
-  {id:5, code:'IT-SW-003', type:'Switch', name:'Switch 24 port Gigabit', serial:'SW24-03', dept:'Cơ điện', user:'Phòng server', purchase:'2022-09-10', status:'stock', note:''},
-  {id:6, code:'IT-LT-006', type:'Laptop', name:'Dell Latitude i5 / RAM 16GB', serial:'DL006', dept:'Phòng kế hoạch', user:'Trần Văn B', purchase:'2024-03-18', status:'use', note:''}
-];
-let repairs = [
-  {date:'2026-05-10', asset:'IT-PC-014', issue:'Máy chạy chậm, lỗi ổ cứng', tech:'IT', cost:450000, status:'Đang xử lý'},
-  {date:'2026-05-08', asset:'IT-PR-002', issue:'Kẹt giấy, vệ sinh cụm sấy', tech:'IT', cost:0, status:'Hoàn tất'}
-];
-let assignments = [
-  {date:'2026-05-01', asset:'IT-LT-006', type:'Cấp phát', user:'Trần Văn B', dept:'Phòng kế hoạch', note:'Cấp cho công việc kế hoạch'},
-  {date:'2026-04-22', asset:'IT-PC-001', type:'Điều chuyển', user:'Nguyễn Thị A', dept:'Phòng nhân sự', note:'Chuyển từ máy cũ sang máy mới'}
-];
-let editingId = null;
-const $ = id => document.getElementById(id);
-const norm = s => String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-function todayISO(){ return new Date().toISOString().slice(0,10); }
-function money(n){ return Number(n||0).toLocaleString('vi-VN') + ' đ'; }
-function statusLabel(v){ return (statuses.find(s=>s.value===v)||{}).label || v; }
-function statusClass(v){ return v || 'stock'; }
-function fillSelect(id, arr, getVal=x=>x, getText=x=>x, first=''){
-  const el=$(id); if(!el) return; el.innerHTML = first ? `<option value="">${first}</option>` : '';
-  arr.forEach(x=>{ const op=document.createElement('option'); op.value=getVal(x); op.textContent=getText(x); el.appendChild(op); });
-}
-function init(){
-  $('todayText').textContent = new Date().toLocaleDateString('vi-VN',{weekday:'long', day:'2-digit', month:'2-digit', year:'numeric'});
-  $('apiBaseInput').value = API_BASE;
-  fillSelect('dashStatus', statuses, s=>s.value, s=>s.label, 'Tất cả trạng thái');
-  fillSelect('filterStatus', statuses, s=>s.value, s=>s.label, 'Tất cả trạng thái');
-  fillSelect('filterType', assetTypes, x=>x, x=>x, 'Tất cả loại');
-  fillSelect('filterDept', departments, d=>d.name, d=>d.name, 'Tất cả phòng ban');
-  fillSelect('fType', assetTypes); fillSelect('fDept', departments, d=>d.name, d=>d.name); fillSelect('fStatus', statuses, s=>s.value, s=>s.label);
-  fillSelect('aDept', departments, d=>d.name, d=>d.name);
-  document.querySelectorAll('.nav button').forEach(btn=>btn.onclick=()=>setView(btn.dataset.view));
-  loadRemote().finally(renderAll);
-}
-async function loadRemote(){
-  if(!API_BASE) return;
-  try{
-    const res = await fetch(API_BASE + '/api/assets');
-    if(res.ok){ const data = await res.json(); if(Array.isArray(data)) assets=data; if(Array.isArray(data.assets)) assets=data.assets; }
-  }catch(e){ console.warn('API chưa sẵn sàng, dùng demo data', e); }
-}
-function renderAll(){ renderKpi(); renderDashboardTable(); renderAssets(); renderDept(); renderRepairs(); renderAssignments(); renderActivity(); refreshAssetOptions(); }
-function renderKpi(){
-  $('kpiTotal').textContent=assets.length;
-  $('kpiUse').textContent=assets.filter(a=>a.status==='use').length;
-  $('kpiRepair').textContent=assets.filter(a=>a.status==='repair').length;
-  $('kpiStock').textContent=assets.filter(a=>a.status==='stock').length;
-  $('assetCountText').textContent=assets.length+' tài sản';
-}
-function matchAsset(a,q){ q=norm(q); return !q || norm([a.code,a.type,a.name,a.serial,a.dept,a.user,a.status].join(' ')).includes(q); }
-function renderDashboardTable(){
-  const q=$('dashSearch').value, st=$('dashStatus').value;
-  const rows=assets.filter(a=>matchAsset(a,q)).filter(a=>!st||a.status===st).slice(0,10);
-  $('dashRows').innerHTML = rows.map(a=>`<tr><td><b>${a.code}</b></td><td>${a.type}</td><td>${a.name}</td><td>${a.dept}</td><td>${a.user||'-'}</td><td><span class="status ${statusClass(a.status)}">${statusLabel(a.status)}</span></td></tr>`).join('') || '<tr><td colspan="6">Không có dữ liệu</td></tr>';
-}
-function renderAssets(){
-  const q=$('assetSearch')?.value||'', type=$('filterType')?.value||'', dept=$('filterDept')?.value||'', st=$('filterStatus')?.value||'';
-  const rows=assets.filter(a=>matchAsset(a,q)).filter(a=>(!type||a.type===type)&&(!dept||a.dept===dept)&&(!st||a.status===st));
-  $('assetRows').innerHTML = rows.map(a=>`<tr><td><b>${a.code}</b></td><td>${a.type}</td><td>${a.name}</td><td>${a.serial||'-'}</td><td>${a.dept}</td><td>${a.user||'-'}</td><td>${a.purchase||'-'}</td><td><span class="status ${statusClass(a.status)}">${statusLabel(a.status)}</span></td><td><button class="btn ghost" onclick="editAsset(${a.id})">Sửa</button> <button class="btn danger" onclick="deleteAsset(${a.id})">Xóa</button></td></tr>`).join('') || '<tr><td colspan="9">Không có dữ liệu</td></tr>';
-}
-function renderDept(){
-  $('deptGrid').innerHTML = departments.map(d=>{
-    const count = assets.filter(a=>a.dept===d.name).length;
-    const child = d.children.length ? `<p>Nhóm: ${d.children.join(', ')}</p>` : '<p>Không có nhóm con</p>';
-    return `<div class="dept"><h4>${d.name}</h4><p>Mã: ${d.code}</p>${child}<div class="count">${count}</div><p>tài sản đang ghi nhận</p></div>`;
-  }).join('');
-}
-function renderRepairs(){
-  $('repairRows').innerHTML = repairs.map(r=>`<tr><td>${r.date}</td><td><b>${r.asset}</b></td><td>${r.issue}</td><td>${r.tech}</td><td>${money(r.cost)}</td><td>${r.status}</td></tr>`).join('') || '<tr><td colspan="6">Chưa có sửa chữa</td></tr>';
-}
-function renderAssignments(){
-  $('assignRows').innerHTML = assignments.map(a=>`<tr><td>${a.date}</td><td><b>${a.asset}</b></td><td>${a.type}</td><td>${a.user}</td><td>${a.dept}</td><td>${a.note||''}</td></tr>`).join('') || '<tr><td colspan="6">Chưa có phiếu</td></tr>';
-}
-function renderActivity(){
-  const list = [
-    ['Cập nhật tài sản','Đồng bộ danh sách tài sản demo'],
-    ['Sửa chữa','IT-PC-014 đang xử lý lỗi ổ cứng'],
-    ['Cấp phát','IT-LT-006 cấp cho phòng kế hoạch'],
-    ['Kiểm kê','Bổ sung cơ cấu phòng ban đầy đủ']
-  ];
-  $('activityList').innerHTML=list.map(x=>`<div class="activity"><div class="dot"></div><div><b>${x[0]}</b><span>${x[1]}</span></div></div>`).join('');
-}
-function refreshAssetOptions(){
-  fillSelect('rAsset', assets, a=>a.code, a=>`${a.code} - ${a.name}`);
-  fillSelect('aAsset', assets, a=>a.code, a=>`${a.code} - ${a.name}`);
-}
-function setView(id){
-  document.querySelectorAll('.view').forEach(v=>v.classList.remove('active')); $(id).classList.add('active');
-  document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active', b.dataset.view===id));
-  const map={dashboard:['Tổng quan tài sản IT','Theo dõi tổng quan thiết bị và tình trạng sử dụng.'],assets:['Danh sách tài sản','Quản lý chi tiết từng thiết bị.'],departments:['Phòng ban / đơn vị','Cơ cấu phòng ban đầy đủ để gắn tài sản.'],repairs:['Sửa chữa / bảo trì','Theo dõi lỗi, chi phí và người xử lý.'],assignments:['Cấp phát / Thu hồi','Lịch sử bàn giao thiết bị.'],reports:['Báo cáo','Báo cáo kiểm kê và xuất dữ liệu.'],settings:['Cấu hình API','Kết nối Cloudflare Worker + D1.']};
-  $('pageTitle').textContent=map[id][0]; $('pageSub').textContent=map[id][1]; toggleMenu(false);
-}
-function toggleMenu(show){ $('sidebar').classList.toggle('open', show); $('drawerMask').classList.toggle('show', show); }
-function openAssetModal(){ editingId=null; $('assetModalTitle').textContent='Thêm tài sản'; ['fCode','fName','fSerial','fUser','fPurchase','fNote'].forEach(id=>$(id).value=''); $('fStatus').value='stock'; $('assetModal').classList.add('show'); }
-function editAsset(id){ const a=assets.find(x=>x.id===id); if(!a) return; editingId=id; $('assetModalTitle').textContent='Sửa tài sản'; $('fCode').value=a.code; $('fType').value=a.type; $('fName').value=a.name; $('fSerial').value=a.serial; $('fDept').value=a.dept; $('fUser').value=a.user; $('fPurchase').value=a.purchase; $('fStatus').value=a.status; $('fNote').value=a.note; $('assetModal').classList.add('show'); }
-function saveAsset(){
-  const item={id:editingId||Date.now(),code:$('fCode').value.trim(),type:$('fType').value,name:$('fName').value.trim(),serial:$('fSerial').value.trim(),dept:$('fDept').value,user:$('fUser').value.trim(),purchase:$('fPurchase').value,status:$('fStatus').value,note:$('fNote').value.trim()};
-  if(!item.code || !item.name){ alert('Nhập mã tài sản và tên/cấu hình'); return; }
-  if(editingId){ assets=assets.map(a=>a.id===editingId?item:a); } else { if(assets.some(a=>norm(a.code)===norm(item.code))){ alert('Mã tài sản đã tồn tại'); return; } assets.unshift(item); }
-  closeModal('assetModal'); renderAll(); saveRemote('/api/assets', item, editingId?'PUT':'POST');
-}
-function deleteAsset(id){ if(!confirm('Xóa tài sản này?')) return; assets=assets.filter(a=>a.id!==id); renderAll(); saveRemote('/api/assets/'+id, null, 'DELETE'); }
-function openRepairModal(){ $('rDate').value=todayISO(); $('rIssue').value=''; $('rCost').value=0; refreshAssetOptions(); $('repairModal').classList.add('show'); }
-function saveRepair(){ repairs.unshift({date:$('rDate').value,asset:$('rAsset').value,issue:$('rIssue').value,tech:$('rTech').value,cost:$('rCost').value,status:'Đang xử lý'}); const a=assets.find(x=>x.code===$('rAsset').value); if(a) a.status='repair'; closeModal('repairModal'); renderAll(); saveRemote('/api/repairs', repairs[0], 'POST'); }
-function openAssignModal(){ $('aDate').value=todayISO(); refreshAssetOptions(); $('assignModal').classList.add('show'); }
-function saveAssignment(){ assignments.unshift({date:$('aDate').value,asset:$('aAsset').value,type:$('aType').value,user:$('aUser').value,dept:$('aDept').value,note:$('aNote').value}); const a=assets.find(x=>x.code===$('aAsset').value); if(a){ a.user=$('aUser').value; a.dept=$('aDept').value; a.status=$('aType').value==='Thu hồi'?'stock':'use'; } closeModal('assignModal'); renderAll(); saveRemote('/api/assignments', assignments[0], 'POST'); }
-function closeModal(id){ $(id).classList.remove('show'); }
-async function saveRemote(path, payload, method){ if(!API_BASE) return; try{ await fetch(API_BASE+path,{method,headers:{'Content-Type':'application/json'},body:payload?JSON.stringify(payload):undefined}); }catch(e){ console.warn('Chưa lưu D1 vì API chưa sẵn sàng', e); } }
-function saveApiBase(){ API_BASE=$('apiBaseInput').value.trim().replace(/\/$/,''); localStorage.setItem('IT_ASSET_API_BASE',API_BASE); alert('Đã lưu API_BASE'); }
-function exportCsv(){
-  const headers=['code','type','name','serial','dept','user','purchase','status','note'];
-  const csv=[headers.join(',')].concat(assets.map(a=>headers.map(h=>'"'+String(a[h]||'').replaceAll('"','""')+'"').join(','))).join('\n');
-  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'}); const url=URL.createObjectURL(blob); const a=document.createElement('a'); a.href=url; a.download='it-assets.csv'; a.click(); URL.revokeObjectURL(url);
-}
-init();
-</script>
+  <script src="config.js"></script>
+  <script src="app.js"></script>
 </body>
 </html>
