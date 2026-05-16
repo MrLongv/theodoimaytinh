@@ -727,3 +727,137 @@ function exportCsv(){
 }
 
 init();
+async function importExcel(event){
+
+  const file = event.target.files[0];
+
+  if(!file) return;
+
+  try{
+
+    showToast(
+      'Đang đọc file Excel...',
+      'info',
+      'Import dữ liệu'
+    );
+
+    const buffer = await file.arrayBuffer();
+
+    const workbook = XLSX.read(buffer, {
+      type:'array'
+    });
+
+    const sheetName = workbook.SheetNames[0];
+
+    const sheet = workbook.Sheets[sheetName];
+
+    const rows = XLSX.utils.sheet_to_json(sheet);
+
+    if(!rows.length){
+      showToast(
+        'File Excel không có dữ liệu',
+        'warn',
+        'Import thất bại'
+      );
+      return;
+    }
+
+    let success = 0;
+    let fail = 0;
+
+    for(const row of rows){
+
+      try{
+
+        const dept = departments.find(
+          d => norm(d.name) === norm(row['Phòng ban'] || '')
+        );
+
+        const payload = {
+
+          asset_code:
+            row['Mã tài sản'] ||
+            row['Mã TS'] ||
+            '',
+
+          asset_type:
+            row['Loại'] ||
+            'PC',
+
+          asset_name:
+            row['Tên tài sản'] ||
+            row['Tên'] ||
+            '',
+
+          serial_number:
+            row['Serial'] || '',
+
+          department_id:
+            dept ? dept.id : null,
+
+          assigned_to:
+            row['Người dùng'] || '',
+
+          purchase_date:
+            row['Ngày mua'] || '',
+
+          warranty_end:
+            row['Bảo hành'] || '',
+
+          status:
+            row['Trạng thái'] || 'stock',
+
+          note:
+            row['Ghi chú'] || ''
+        };
+
+        if(
+          !payload.asset_code ||
+          !payload.asset_name
+        ){
+          fail++;
+          continue;
+        }
+
+        await saveRemote(
+          '/api/assets',
+          payload,
+          'POST'
+        );
+
+        success++;
+
+      }catch(e){
+        fail++;
+      }
+    }
+
+    await loadRemote();
+    renderAll();
+
+    showToast(
+      `Import thành công ${success} dòng`,
+      'success',
+      'Hoàn tất'
+    );
+
+    if(fail){
+      showToast(
+        `${fail} dòng bị lỗi`,
+        'warn',
+        'Import'
+      );
+    }
+
+  }catch(e){
+
+    showToast(
+      e.message,
+      'error',
+      'Lỗi đọc Excel'
+    );
+
+  }
+
+  event.target.value = '';
+}
