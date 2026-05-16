@@ -38,7 +38,25 @@
       <div class="top-actions">
         <div class="pill" id="todayText"></div>
         <button class="btn ghost" onclick="exportCsv()">⬇ Xuất CSV</button>
-        <button class="btn primary" onclick="openAssetModal()">+ Thêm tài sản</button>
+        <div style="display:flex;gap:10px;flex-wrap:wrap">
+
+  <label class="btn blue" for="excelImport">
+    ⬆ Import Excel
+  </label>
+
+  <input
+    type="file"
+    id="excelImport"
+    accept=".xlsx,.xls,.csv"
+    hidden
+    onchange="importExcel(event)"
+  >
+
+  <button class="btn primary" onclick="openAssetModal()">
+    + Thêm tài sản
+  </button>
+
+</div>
       </div>
     </div>
 
@@ -278,7 +296,8 @@
     </div>
   </div>
 </div>
+  <script src="https://cdn.jsdelivr.net/npm/xlsx/dist/xlsx.full.min.js"></script>
 <script src="config.js?v=4"></script>
-<script src="app.js?v=10"></script>
+<script src="app.js?v=11"></script>
 </body>
 </html>
