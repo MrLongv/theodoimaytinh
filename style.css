@@ -224,3 +224,40 @@ tbody tr:hover{
     flex-direction:column;
   }
 }
+.login-screen{
+  position:fixed;
+  inset:0;
+  z-index:10000;
+  background:
+    radial-gradient(circle at top left, rgba(20,184,166,.2), transparent 35%),
+    radial-gradient(circle at top right, rgba(37,99,235,.18), transparent 35%),
+    #f4f7fb;
+  display:none;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+}
+
+.login-box{
+  width:min(380px,100%);
+  background:white;
+  border-radius:24px;
+  padding:26px;
+  box-shadow:0 30px 90px rgba(15,23,42,.18);
+  display:grid;
+  gap:13px;
+  text-align:center;
+}
+
+.login-logo{
+  margin:auto;
+}
+
+.login-box h2{
+  margin:6px 0 0;
+}
+
+.login-box p{
+  margin:0 0 8px;
+  color:var(--muted);
+}
