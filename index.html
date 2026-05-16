@@ -175,7 +175,20 @@
       <div class="modal-foot"><button class="btn ghost" onclick="closeModal('assignModal')">Hủy</button><button class="btn primary" onclick="saveAssignment()">Lưu phiếu</button></div>
     </div>
   </div>
+  <div id="toastBox" class="toast-box"></div>
+
+<div id="confirmModal" class="confirm-modal">
+  <div class="confirm-box">
+    <div class="confirm-icon">⚠️</div>
+    <h3 id="confirmTitle">Xác nhận</h3>
+    <p id="confirmMessage">Bạn có chắc muốn thực hiện?</p>
+    <div class="confirm-actions">
+      <button class="btn ghost" onclick="closeConfirm(false)">Hủy</button>
+      <button class="btn danger" onclick="closeConfirm(true)">Đồng ý</button>
+    </div>
+  </div>
+</div>
 <script src="config.js?v=4"></script>
-<script src="app.js?v=8"></script>
+<script src="app.js?v=9"></script>
 </body>
 </html>
