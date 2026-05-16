@@ -7,6 +7,19 @@
   <link rel="stylesheet" href="style.css">
 </head>
 <body>
+  <div id="loginScreen" class="login-screen">
+  <div class="login-box">
+    <div class="logo login-logo">IT</div>
+
+    <h2>Đăng nhập quản trị</h2>
+    <p>IT Asset Manager - Việt Hồng</p>
+
+    <input id="loginUser" class="field" placeholder="Tài khoản">
+    <input id="loginPass" class="field" type="password" placeholder="Mật khẩu">
+
+    <button class="btn primary" onclick="loginAdmin()">Đăng nhập</button>
+  </div>
+</div>
   <div class="drawer-mask" id="drawerMask" onclick="toggleMenu(false)"></div>
   <aside class="sidebar" id="sidebar">
     <div class="brand">
