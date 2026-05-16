@@ -272,7 +272,7 @@ function renderAssets(){
     </td>
   </tr>
 `).join('') || '<tr><td colspan="9">Không có dữ liệu</td></tr>';
-
+}
 function renderDept(){
   $('deptGrid').innerHTML = departments.map(d => {
     const count = assets.filter(a => assetDept(a) === d.name).length;
