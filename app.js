@@ -45,6 +45,9 @@ let assignments = [
 ];
 
 let editingId = null;
+let assetPage = 1;
+let assetPageSize = 25;
+let lastAssetRows = [];
 
 const $ = id => document.getElementById(id);
 let confirmResolve = null;
@@ -289,7 +292,43 @@ function renderDashboardTable(){
     </tr>
   `).join('') || '<tr><td colspan="6">Không có dữ liệu</td></tr>';
 }
+function updatePager(total){
+  const totalPages = Math.max(1, Math.ceil(total / assetPageSize));
 
+  if(assetPage > totalPages){
+    assetPage = totalPages;
+  }
+
+  if($('pagerInfo')){
+    $('pagerInfo').textContent = `${total} dòng`;
+  }
+
+  if($('pagerPage')){
+    $('pagerPage').textContent = `Trang ${assetPage}/${totalPages}`;
+  }
+}
+
+function prevPage(){
+  if(assetPage > 1){
+    assetPage--;
+    renderAssets();
+  }
+}
+
+function nextPage(){
+  const totalPages = Math.max(1, Math.ceil(lastAssetRows.length / assetPageSize));
+
+  if(assetPage < totalPages){
+    assetPage++;
+    renderAssets();
+  }
+}
+
+function changePageSize(){
+  assetPageSize = Number($('pageSize').value || 25);
+  assetPage = 1;
+  renderAssets();
+}
 function renderAssets(){
   const q = $('assetSearch')?.value || '';
   const type = $('filterType')?.value || '';
@@ -302,26 +341,40 @@ function renderAssets(){
     .filter(a => !dept || assetDept(a) === dept)
     .filter(a => !st || a.status === st);
 
-  $('assetRows').innerHTML = rows.map(a => `
-  <tr>
-    <td><b>${assetCode(a)}</b></td>
-    <td>${typeBadge(assetType(a))}</td>
-    <td>${assetName(a)}</td>
-    <td>${assetSerial(a) || '-'}</td>
-    <td>${assetDept(a)}</td>
-    <td>${assetUser(a) || '-'}</td>
-    <td>${warrantyBadge(assetWarranty(a))}</td>
-    <td>
-      <span class="status ${statusClass(a.status)}">
-        ${statusLabel(a.status)}
-      </span>
-    </td>
-    <td>
-      <button class="btn ghost" onclick="editAsset(${a.id})">Sửa</button>
-      <button class="btn danger" onclick="deleteAsset(${a.id})">Xóa</button>
-    </td>
-  </tr>
-`).join('') || '<tr><td colspan="9">Không có dữ liệu</td></tr>';
+  lastAssetRows = rows;
+
+  const total = rows.length;
+  const totalPages = Math.max(1, Math.ceil(total / assetPageSize));
+
+  if(assetPage > totalPages){
+    assetPage = totalPages;
+  }
+
+  const start = (assetPage - 1) * assetPageSize;
+  const pageRows = rows.slice(start, start + assetPageSize);
+
+  updatePager(total);
+
+  $('assetRows').innerHTML = pageRows.map(a => `
+    <tr>
+      <td><b>${assetCode(a)}</b></td>
+      <td>${typeBadge(assetType(a))}</td>
+      <td>${assetName(a)}</td>
+      <td>${assetSerial(a) || '-'}</td>
+      <td>${assetDept(a)}</td>
+      <td>${assetUser(a) || '-'}</td>
+      <td>${warrantyBadge(assetWarranty(a))}</td>
+      <td>
+        <span class="status ${statusClass(a.status)}">
+          ${statusLabel(a.status)}
+        </span>
+      </td>
+      <td>
+        <button class="btn ghost" onclick="editAsset(${a.id})">Sửa</button>
+        <button class="btn danger" onclick="deleteAsset(${a.id})">Xóa</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="9">Không có dữ liệu</td></tr>';
 }
 function renderDept(){
   $('deptGrid').innerHTML = departments.map(d => {
