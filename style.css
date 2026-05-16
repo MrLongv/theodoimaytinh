@@ -69,3 +69,41 @@ thead th{
   background: #f8fafc;
   z-index: 2;
 }
+.type-badge{
+  display:inline-flex;
+  align-items:center;
+  padding:6px 9px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+  background:#eef2ff;
+  color:#3730a3;
+}
+
+.type-badge.pc{background:#dbeafe;color:#1d4ed8}
+.type-badge.laptop{background:#f3e8ff;color:#7e22ce}
+.type-badge.printer{background:#ffedd5;color:#c2410c}
+.type-badge.camera{background:#dcfce7;color:#15803d}
+.type-badge.network{background:#e0f2fe;color:#0369a1}
+
+.warranty{
+  display:inline-flex;
+  padding:6px 9px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:800;
+}
+
+.warranty.ok{background:#dcfce7;color:#166534}
+.warranty.warn{background:#fef3c7;color:#92400e}
+.warranty.expired{background:#fee2e2;color:#991b1b}
+.warranty.none{background:#f1f5f9;color:#64748b}
+
+tbody tr{
+  transition:.15s ease;
+}
+
+tbody tr:hover{
+  transform:translateY(-1px);
+  box-shadow:0 8px 18px rgba(15,23,42,.06);
+}
