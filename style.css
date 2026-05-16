@@ -191,3 +191,36 @@ tbody tr:hover{
   gap:10px;
   justify-content:center;
 }
+.pager{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:12px 4px 0;
+  color:var(--muted);
+  font-size:13px;
+}
+
+.pager-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+  flex-wrap:wrap;
+}
+
+.pager-actions .btn{
+  padding:8px 11px;
+  border-radius:11px;
+}
+
+.page-size{
+  height:36px;
+  min-width:110px;
+}
+
+@media(max-width:760px){
+  .pager{
+    align-items:flex-start;
+    flex-direction:column;
+  }
+}
