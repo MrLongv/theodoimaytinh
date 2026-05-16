@@ -457,7 +457,11 @@ function saveAsset(){
   closeModal('assetModal');
   renderAll();
 
-  saveRemote('/api/assets', payload, editingId ? 'PUT' : 'POST');
+  if(editingId){
+  saveRemote('/api/assets/' + editingId, payload, 'PUT');
+}else{
+  saveRemote('/api/assets', payload, 'POST');
+}
 }
 
 function deleteAsset(id){
@@ -529,16 +533,26 @@ async function saveRemote(path, payload, method){
   if(!CURRENT_API_BASE) return;
 
   try{
-    await fetch(CURRENT_API_BASE + path, {
+    const res = await fetch(CURRENT_API_BASE + path, {
       method,
       headers:{'Content-Type':'application/json'},
       body: payload ? JSON.stringify(payload) : undefined
     });
+
+    const data = await res.json();
+
+    if(!res.ok || data.success === false){
+      alert('Lỗi lưu D1: ' + (data.error || 'Không rõ lỗi'));
+      return;
+    }
+
+    await loadRemote();
+    renderAll();
+
   }catch(e){
-    console.warn('Chưa lưu D1 vì API chưa sẵn sàng', e);
+    alert('Không kết nối được API: ' + e.message);
   }
 }
-
 function saveApiBase(){
   CURRENT_API_BASE = $('apiBaseInput').value.trim().replace(/\/$/,'');
   localStorage.setItem('IT_ASSET_API_BASE', CURRENT_API_BASE);
