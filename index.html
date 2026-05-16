@@ -66,17 +66,107 @@
     </section>
 
     <section class="view" id="assets">
-      <div class="card section">
-        <div class="section-title"><h3>Danh sách tài sản</h3><small>lọc nhanh và thao tác</small></div>
-        <div class="toolbar">
-          <input class="field search" id="assetSearch" placeholder="Tìm mã, serial, người dùng..." oninput="renderAssets()">
-          <select class="field" id="filterType" onchange="renderAssets()"><option value="">Tất cả loại</option></select>
-          <select class="field" id="filterDept" onchange="renderAssets()"><option value="">Tất cả phòng ban</option></select>
-          <select class="field" id="filterStatus" onchange="renderAssets()"><option value="">Tất cả trạng thái</option></select>
-        </div>
-        <div class="table-wrap"><table><thead><tr><th>Mã</th><th>Loại</th><th>Tên tài sản</th><th>Serial</th><th>Phòng ban</th><th>Người dùng</th><th>Bảo hành</th><th>Trạng thái</th><th>Thao tác</th></tr></thead><tbody id="assetRows"></tbody></table></div>
+  <div class="card section">
+
+    <div class="section-title">
+      <h3>Danh sách tài sản</h3>
+      <small>lọc nhanh và thao tác</small>
+    </div>
+
+    <div class="toolbar">
+      <input
+        class="field search"
+        id="assetSearch"
+        placeholder="Tìm mã, serial, người dùng..."
+        oninput="assetPage=1;renderAssets()"
+      >
+
+      <select
+        class="field"
+        id="filterType"
+        onchange="assetPage=1;renderAssets()"
+      >
+        <option value="">Tất cả loại</option>
+      </select>
+
+      <select
+        class="field"
+        id="filterDept"
+        onchange="assetPage=1;renderAssets()"
+      >
+        <option value="">Tất cả phòng ban</option>
+      </select>
+
+      <select
+        class="field"
+        id="filterStatus"
+        onchange="assetPage=1;renderAssets()"
+      >
+        <option value="">Tất cả trạng thái</option>
+      </select>
+    </div>
+
+    <div class="table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Mã</th>
+            <th>Loại</th>
+            <th>Tên tài sản</th>
+            <th>Serial</th>
+            <th>Phòng ban</th>
+            <th>Người dùng</th>
+            <th>Bảo hành</th>
+            <th>Trạng thái</th>
+            <th>Thao tác</th>
+          </tr>
+        </thead>
+
+        <tbody id="assetRows"></tbody>
+      </table>
+    </div>
+
+    <div class="pager">
+
+      <div id="pagerInfo">0 dòng</div>
+
+      <div class="pager-actions">
+
+        <button
+          class="btn ghost"
+          onclick="prevPage()"
+        >
+          ← Trước
+        </button>
+
+        <span id="pagerPage">
+          Trang 1/1
+        </span>
+
+        <button
+          class="btn ghost"
+          onclick="nextPage()"
+        >
+          Sau →
+        </button>
+
+        <select
+          class="field page-size"
+          id="pageSize"
+          onchange="changePageSize()"
+        >
+          <option value="10">10 dòng</option>
+          <option value="25" selected>25 dòng</option>
+          <option value="50">50 dòng</option>
+          <option value="100">100 dòng</option>
+        </select>
+
       </div>
-    </section>
+
+    </div>
+
+  </div>
+</section>
 
     <section class="view" id="departments">
       <div class="hint"><b>Phòng ban đã bổ sung đủ theo cơ cấu công ty:</b> HCQT, Nhân sự, Kế toán, Kế hoạch, Kỹ thuật công nghệ, Kho NPL, Kho TP, Tổ cắt, Cơ điện, XN1, XN2, XN3. Trong demo Rocket thường thiếu các nhóm nhỏ như Bảo vệ, Tạp vụ, Nhà ăn, Thợ điện, Thợ máy và các tổ chuyền.</div>
@@ -189,6 +279,6 @@
   </div>
 </div>
 <script src="config.js?v=4"></script>
-<script src="app.js?v=9"></script>
+<script src="app.js?v=10"></script>
 </body>
 </html>
