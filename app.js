@@ -280,9 +280,94 @@ async function loadRemote(){
 
   }
 }
+function yearsOld(dateText){
+  if(!dateText) return 0;
 
+  const d = new Date(dateText);
+  if(isNaN(d)) return 0;
+
+  const now = new Date();
+  return now.getFullYear() - d.getFullYear();
+}
+
+function warrantyDaysLeft(dateText){
+  if(!dateText) return null;
+
+  const d = new Date(dateText);
+  if(isNaN(d)) return null;
+
+  return Math.ceil((d - new Date()) / (1000 * 60 * 60 * 24));
+}
+
+function renderDashboardStats(){
+  const typeMap = {};
+
+  assets.forEach(a => {
+    const type = assetType(a) || 'Khác';
+    typeMap[type] = (typeMap[type] || 0) + 1;
+  });
+
+  const typeRows = Object.entries(typeMap)
+    .sort((a,b) => b[1] - a[1])
+    .map(([type,count]) => `
+      <div class="stat-row">
+        <b>${typeBadge(type)}</b>
+        <span>${count}</span>
+      </div>
+    `)
+    .join('');
+
+  if($('typeStats')){
+    $('typeStats').innerHTML = typeRows || '<div class="stat-row"><b>Chưa có dữ liệu</b><span>0</span></div>';
+  }
+
+  if($('typeStatsCount')){
+    $('typeStatsCount').textContent = assets.length + ' tài sản';
+  }
+
+  const warrantySoon = assets.filter(a => {
+    const days = warrantyDaysLeft(assetWarranty(a));
+    return days !== null && days >= 0 && days <= 60;
+  }).length;
+
+  const warrantyExpired = assets.filter(a => {
+    const days = warrantyDaysLeft(assetWarranty(a));
+    return days !== null && days < 0;
+  }).length;
+
+  const oldAssets = assets.filter(a => {
+    return yearsOld(assetPurchase(a)) >= 5;
+  }).length;
+
+  const noWarranty = assets.filter(a => !assetWarranty(a)).length;
+
+  if($('warningStats')){
+    $('warningStats').innerHTML = `
+      <div class="stat-row stat-warn">
+        <b>⚠️ Bảo hành sắp hết trong 60 ngày</b>
+        <span>${warrantySoon}</span>
+      </div>
+
+      <div class="stat-row stat-danger">
+        <b>⛔ Đã hết bảo hành</b>
+        <span>${warrantyExpired}</span>
+      </div>
+
+      <div class="stat-row stat-warn">
+        <b>🕰️ Tài sản trên 5 năm</b>
+        <span>${oldAssets}</span>
+      </div>
+
+      <div class="stat-row">
+        <b>❔ Chưa nhập hạn bảo hành</b>
+        <span>${noWarranty}</span>
+      </div>
+    `;
+  }
+}
 function renderAll(){
   renderKpi();
+  renderDashboardStats();
   renderDashboardTable();
   renderAssets();
   renderDept();
