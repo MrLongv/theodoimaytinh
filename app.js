@@ -227,7 +227,7 @@ function renderDashboardTable(){
   $('dashRows').innerHTML = rows.map(a => `
     <tr>
       <td><b>${assetCode(a)}</b></td>
-      <td>${assetType(a)}</td>
+      <td>${typeBadge(assetType(a))}</td>
       <td>${assetName(a)}</td>
       <td>${assetDept(a)}</td>
       <td>${assetUser(a) || '-'}</td>
@@ -253,26 +253,25 @@ function renderAssets(){
     .filter(a => !st || a.status === st);
 
   $('assetRows').innerHTML = rows.map(a => `
-    <tr>
-      <td><b>${assetCode(a)}</b></td>
-      <td>${assetType(a)}</td>
-      <td>${assetName(a)}</td>
-      <td>${assetSerial(a) || '-'}</td>
-      <td>${assetDept(a)}</td>
-      <td>${assetUser(a) || '-'}</td>
-      <td>${assetPurchase(a) || '-'}</td>
-      <td>
-        <span class="status ${statusClass(a.status)}">
-          ${statusLabel(a.status)}
-        </span>
-      </td>
-      <td>
-        <button class="btn ghost" onclick="editAsset(${a.id})">Sửa</button>
-        <button class="btn danger" onclick="deleteAsset(${a.id})">Xóa</button>
-      </td>
-    </tr>
-  `).join('') || '<tr><td colspan="9">Không có dữ liệu</td></tr>';
-}
+  <tr>
+    <td><b>${assetCode(a)}</b></td>
+    <td>${typeBadge(assetType(a))}</td>
+    <td>${assetName(a)}</td>
+    <td>${assetSerial(a) || '-'}</td>
+    <td>${assetDept(a)}</td>
+    <td>${assetUser(a) || '-'}</td>
+    <td>${warrantyBadge(assetWarranty(a))}</td>
+    <td>
+      <span class="status ${statusClass(a.status)}">
+        ${statusLabel(a.status)}
+      </span>
+    </td>
+    <td>
+      <button class="btn ghost" onclick="editAsset(${a.id})">Sửa</button>
+      <button class="btn danger" onclick="deleteAsset(${a.id})">Xóa</button>
+    </td>
+  </tr>
+`).join('') || '<tr><td colspan="9">Không có dữ liệu</td></tr>';
 
 function renderDept(){
   $('deptGrid').innerHTML = departments.map(d => {
