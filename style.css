@@ -261,3 +261,47 @@ tbody tr:hover{
   margin:0 0 8px;
   color:var(--muted);
 }
+.stats-grid{
+  grid-template-columns:1fr 1fr;
+  margin-bottom:16px;
+}
+
+.stat-list{
+  display:grid;
+  gap:10px;
+}
+
+.stat-row{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  padding:12px;
+  border:1px solid var(--line);
+  border-radius:15px;
+  background:#f8fafc;
+}
+
+.stat-row b{
+  font-size:14px;
+}
+
+.stat-row span{
+  font-size:18px;
+  font-weight:900;
+  color:var(--primary);
+}
+
+.stat-warn span{
+  color:#f97316;
+}
+
+.stat-danger span{
+  color:#ef4444;
+}
+
+@media(max-width:900px){
+  .stats-grid{
+    grid-template-columns:1fr;
+  }
+}
