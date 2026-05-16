@@ -47,7 +47,57 @@ let assignments = [
 let editingId = null;
 
 const $ = id => document.getElementById(id);
+let confirmResolve = null;
 
+function showToast(message, type='success', title='Thông báo'){
+  const box = $('toastBox');
+  if(!box) return;
+
+  const icons = {
+    success:'✅',
+    error:'❌',
+    warn:'⚠️',
+    info:'ℹ️'
+  };
+
+  const div = document.createElement('div');
+  div.className = `toast ${type}`;
+  div.innerHTML = `
+    <div>${icons[type] || 'ℹ️'}</div>
+    <div>
+      <b>${title}</b>
+      <span>${message}</span>
+    </div>
+  `;
+
+  box.appendChild(div);
+
+  setTimeout(() => {
+    div.style.opacity = '0';
+    div.style.transform = 'translateX(18px)';
+    div.style.transition = '.2s';
+    setTimeout(() => div.remove(), 220);
+  }, 2600);
+}
+
+function showConfirm(message, title='Xác nhận'){
+  $('confirmTitle').textContent = title;
+  $('confirmMessage').textContent = message;
+  $('confirmModal').classList.add('show');
+
+  return new Promise(resolve => {
+    confirmResolve = resolve;
+  });
+}
+
+function closeConfirm(result){
+  $('confirmModal').classList.remove('show');
+
+  if(confirmResolve){
+    confirmResolve(result);
+    confirmResolve = null;
+  }
+}
 const norm = s => String(s || '')
   .toLowerCase()
   .normalize('NFD')
@@ -429,11 +479,11 @@ function formAssetPayload(){
   };
 }
 
-function saveAsset(){
+async function saveAsset(){
   const payload = formAssetPayload();
 
   if(!payload.asset_code || !payload.asset_name){
-    alert('Nhập mã tài sản và tên/cấu hình');
+   showToast('Nhập mã tài sản và tên/cấu hình', 'warn', 'Thiếu thông tin');
     return;
   }
 
@@ -447,7 +497,7 @@ function saveAsset(){
     assets = assets.map(a => a.id === editingId ? localItem : a);
   }else{
     if(assets.some(a => norm(assetCode(a)) === norm(payload.asset_code))){
-      alert('Mã tài sản đã tồn tại');
+      showToast('Mã tài sản đã tồn tại', 'warn', 'Trùng mã tài sản');
       return;
     }
 
@@ -457,20 +507,39 @@ function saveAsset(){
   closeModal('assetModal');
   renderAll();
 
-  if(editingId){
-  saveRemote('/api/assets/' + editingId, payload, 'PUT');
+ if(editingId){
+
+  await saveRemote('/api/assets/' + editingId, payload, 'PUT');
+
+  showToast(
+    'Đã cập nhật tài sản',
+    'success',
+    'Thành công'
+  );
+
 }else{
-  saveRemote('/api/assets', payload, 'POST');
+
+  await saveRemote('/api/assets', payload, 'POST');
+
+  showToast(
+    'Đã thêm tài sản mới',
+    'success',
+    'Thành công'
+  );
 }
 }
 
-function deleteAsset(id){
-  if(!confirm('Xóa tài sản này?')) return;
+async function deleteAsset(id){
+  const ok = await showConfirm('Bạn có chắc muốn xóa tài sản này không?', 'Xóa tài sản');
+
+  if(!ok) return;
 
   assets = assets.filter(a => a.id !== id);
 
   renderAll();
-  saveRemote('/api/assets/' + id, null, 'DELETE');
+  await saveRemote('/api/assets/' + id, null, 'DELETE');
+
+  showToast('Đã xóa tài sản', 'success', 'Thành công');
 }
 
 function openRepairModal(){
@@ -542,7 +611,7 @@ async function saveRemote(path, payload, method){
     const data = await res.json();
 
     if(!res.ok || data.success === false){
-      alert('Lỗi lưu D1: ' + (data.error || 'Không rõ lỗi'));
+      showToast(data.error || 'Không rõ lỗi', 'error', 'Lỗi lưu D1');
       return;
     }
 
@@ -550,13 +619,13 @@ async function saveRemote(path, payload, method){
     renderAll();
 
   }catch(e){
-    alert('Không kết nối được API: ' + e.message);
+   showToast(e.message, 'error', 'Không kết nối được API');
   }
 }
 function saveApiBase(){
   CURRENT_API_BASE = $('apiBaseInput').value.trim().replace(/\/$/,'');
   localStorage.setItem('IT_ASSET_API_BASE', CURRENT_API_BASE);
-  alert('Đã lưu API_BASE');
+  showToast('Đã lưu API_BASE', 'success', 'Thành công');
 }
 
 function exportCsv(){
