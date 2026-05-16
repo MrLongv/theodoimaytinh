@@ -1,3 +1,4 @@
+let IT_TOKEN = localStorage.getItem('IT_TOKEN') || '';
 let CURRENT_API_BASE = localStorage.getItem('IT_ASSET_API_BASE') || API_BASE || '';
 
 const departments = [
@@ -189,6 +190,7 @@ function fillSelect(id, arr, getVal=x=>x, getText=x=>x, first=''){
 }
 
 function init(){
+  checkLogin();
   $('todayText').textContent = new Date().toLocaleDateString('vi-VN',{
     weekday:'long',
     day:'2-digit',
@@ -219,17 +221,63 @@ function init(){
 }
 
 async function loadRemote(){
+
   if(!CURRENT_API_BASE) return;
 
   try{
-    const res = await fetch(CURRENT_API_BASE + '/api/assets');
-    if(res.ok){
-      const data = await res.json();
-      if(Array.isArray(data)) assets = data;
-      if(Array.isArray(data.assets)) assets = data.assets;
+
+    const res = await fetch(
+      CURRENT_API_BASE + '/api/assets',
+      {
+        headers:{
+          Authorization:'Bearer ' + IT_TOKEN
+        }
+      }
+    );
+
+    if(res.status === 401){
+
+      localStorage.removeItem('IT_TOKEN');
+      IT_TOKEN = '';
+
+      $('loginScreen').style.display = 'flex';
+
+      showToast(
+        'Phiên đăng nhập đã hết hạn',
+        'warn',
+        'Đăng nhập lại'
+      );
+
+      return;
     }
+
+    if(res.ok){
+
+      const data = await res.json();
+
+      if(Array.isArray(data)){
+        assets = data;
+      }
+
+      if(Array.isArray(data.assets)){
+        assets = data.assets;
+      }
+
+    }
+
   }catch(e){
-    console.warn('API chưa sẵn sàng, dùng demo data', e);
+
+    console.warn(
+      'API chưa sẵn sàng, dùng demo data',
+      e
+    );
+
+    showToast(
+      'Không kết nối được API',
+      'error',
+      'Lỗi kết nối'
+    );
+
   }
 }
 
@@ -657,7 +705,10 @@ async function saveRemote(path, payload, method, reload=true){
   try{
     const res = await fetch(CURRENT_API_BASE + path, {
       method,
-      headers:{'Content-Type':'application/json'},
+      headers:{
+  'Content-Type':'application/json',
+  Authorization:'Bearer ' + IT_TOKEN
+},
       body: payload ? JSON.stringify(payload) : undefined
     });
 
@@ -876,4 +927,55 @@ async function importExcel(event){
   }
 
   event.target.value = '';
+}
+async function loginAdmin(){
+  const username = $('loginUser').value.trim();
+  const password = $('loginPass').value.trim();
+
+  if(!username || !password){
+    showToast('Nhập tài khoản và mật khẩu', 'warn', 'Thiếu thông tin');
+    return;
+  }
+
+  try{
+    const res = await fetch(CURRENT_API_BASE + '/api/login', {
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({username, password})
+    });
+
+    const data = await res.json();
+
+    if(!res.ok || !data.success){
+      showToast(data.error || 'Đăng nhập thất bại', 'error', 'Lỗi đăng nhập');
+      return;
+    }
+
+    IT_TOKEN = data.token;
+    localStorage.setItem('IT_TOKEN', IT_TOKEN);
+
+    $('loginScreen').style.display = 'none';
+
+    await loadRemote();
+    renderAll();
+
+    showToast('Đăng nhập thành công', 'success', 'Xin chào');
+
+  }catch(e){
+    showToast(e.message, 'error', 'Không kết nối được API');
+  }
+}
+
+function logoutAdmin(){
+  localStorage.removeItem('IT_TOKEN');
+  IT_TOKEN = '';
+  location.reload();
+}
+
+function checkLogin(){
+  if(!IT_TOKEN){
+    $('loginScreen').style.display = 'flex';
+  }else{
+    $('loginScreen').style.display = 'none';
+  }
 }
