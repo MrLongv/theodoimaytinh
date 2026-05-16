@@ -651,8 +651,8 @@ function closeModal(id){
   $(id).classList.remove('show');
 }
 
-async function saveRemote(path, payload, method){
-  if(!CURRENT_API_BASE) return;
+async function saveRemote(path, payload, method, reload=true){
+  if(!CURRENT_API_BASE) return false;
 
   try{
     const res = await fetch(CURRENT_API_BASE + path, {
@@ -665,14 +665,19 @@ async function saveRemote(path, payload, method){
 
     if(!res.ok || data.success === false){
       showToast(data.error || 'Không rõ lỗi', 'error', 'Lỗi lưu D1');
-      return;
+      return false;
     }
 
-    await loadRemote();
-    renderAll();
+    if(reload){
+      await loadRemote();
+      renderAll();
+    }
+
+    return true;
 
   }catch(e){
-   showToast(e.message, 'error', 'Không kết nối được API');
+    showToast(e.message, 'error', 'Không kết nối được API');
+    return false;
   }
 }
 function saveApiBase(){
@@ -748,10 +753,11 @@ async function importExcel(event){
     });
 
     const sheetName = workbook.SheetNames[0];
-
     const sheet = workbook.Sheets[sheetName];
 
-    const rows = XLSX.utils.sheet_to_json(sheet);
+    const rows = XLSX.utils.sheet_to_json(sheet, {
+      defval: ''
+    });
 
     if(!rows.length){
       showToast(
@@ -763,71 +769,89 @@ async function importExcel(event){
     }
 
     let success = 0;
+    let duplicate = 0;
     let fail = 0;
 
-    for(const row of rows){
+    const existingCodes = new Set(
+      assets.map(a => norm(assetCode(a)))
+    );
 
-      try{
+    for(let i = 0; i < rows.length; i++){
 
-        const dept = departments.find(
-          d => norm(d.name) === norm(row['Phòng ban'] || '')
-        );
+      const row = rows[i];
 
-        const payload = {
+      const code = String(
+        row['Mã tài sản'] ||
+        row['Mã TS'] ||
+        row['Ma tai san'] ||
+        row['Ma TS'] ||
+        ''
+      ).trim();
 
-          asset_code:
-            row['Mã tài sản'] ||
-            row['Mã TS'] ||
-            '',
+      const type = String(
+        row['Loại'] ||
+        row['Loai'] ||
+        'PC'
+      ).trim();
 
-          asset_type:
-            row['Loại'] ||
-            'PC',
+      const name = String(
+        row['Tên tài sản'] ||
+        row['Tên'] ||
+        row['Ten tai san'] ||
+        row['Ten'] ||
+        ''
+      ).trim();
 
-          asset_name:
-            row['Tên tài sản'] ||
-            row['Tên'] ||
-            '',
+      const deptName = String(
+        row['Phòng ban'] ||
+        row['Phong ban'] ||
+        ''
+      ).trim();
 
-          serial_number:
-            row['Serial'] || '',
+      const dept = departments.find(
+        d => norm(d.name) === norm(deptName)
+      );
 
-          department_id:
-            dept ? dept.id : null,
+      if(!code || !name){
+        fail++;
+        continue;
+      }
 
-          assigned_to:
-            row['Người dùng'] || '',
+      if(existingCodes.has(norm(code))){
+        duplicate++;
+        continue;
+      }
 
-          purchase_date:
-            row['Ngày mua'] || '',
+      const payload = {
+        asset_code: code,
+        asset_type: type,
+        asset_name: name,
+        serial_number: String(row['Serial'] || '').trim(),
+        brand: String(row['Hãng'] || row['Hang'] || '').trim(),
+        model: String(row['Model'] || '').trim(),
+        cpu: String(row['CPU'] || '').trim(),
+        ram: String(row['RAM'] || '').trim(),
+        storage: String(row['Ổ cứng'] || row['O cung'] || row['Storage'] || '').trim(),
+        os: String(row['Hệ điều hành'] || row['He dieu hanh'] || row['OS'] || '').trim(),
+        department_id: dept ? dept.id : null,
+        assigned_to: String(row['Người dùng'] || row['Nguoi dung'] || '').trim(),
+        purchase_date: String(row['Ngày mua'] || row['Ngay mua'] || '').trim(),
+        warranty_end: String(row['Bảo hành'] || row['Bao hanh'] || '').trim(),
+        status: String(row['Trạng thái'] || row['Trang thai'] || 'stock').trim(),
+        note: String(row['Ghi chú'] || row['Ghi chu'] || '').trim()
+      };
 
-          warranty_end:
-            row['Bảo hành'] || '',
+      const ok = await saveRemote(
+        '/api/assets',
+        payload,
+        'POST',
+        false
+      );
 
-          status:
-            row['Trạng thái'] || 'stock',
-
-          note:
-            row['Ghi chú'] || ''
-        };
-
-        if(
-          !payload.asset_code ||
-          !payload.asset_name
-        ){
-          fail++;
-          continue;
-        }
-
-        await saveRemote(
-          '/api/assets',
-          payload,
-          'POST'
-        );
-
+      if(ok){
         success++;
-
-      }catch(e){
+        existingCodes.add(norm(code));
+      }else{
         fail++;
       }
     }
@@ -836,18 +860,10 @@ async function importExcel(event){
     renderAll();
 
     showToast(
-      `Import thành công ${success} dòng`,
-      'success',
-      'Hoàn tất'
+      `Thành công ${success} dòng, trùng ${duplicate}, lỗi ${fail}`,
+      success ? 'success' : 'warn',
+      'Kết quả import'
     );
-
-    if(fail){
-      showToast(
-        `${fail} dòng bị lỗi`,
-        'warn',
-        'Import'
-      );
-    }
 
   }catch(e){
 
