@@ -77,6 +77,43 @@ function assetSerial(a){ return a.serial_number ?? a.serial ?? ''; }
 function assetDept(a){ return a.department_name ?? a.dept ?? ''; }
 function assetUser(a){ return a.assigned_to ?? a.user ?? ''; }
 function assetPurchase(a){ return a.purchase_date ?? a.purchase ?? ''; }
+function assetWarranty(a){
+  return a.warranty_end ?? '';
+}
+
+function typeBadge(type){
+  const t = String(type || '').toLowerCase();
+
+  let cls = 'type-badge';
+
+  if(t.includes('pc')) cls += ' pc';
+  else if(t.includes('laptop')) cls += ' laptop';
+  else if(t.includes('máy in')) cls += ' printer';
+  else if(t.includes('camera')) cls += ' camera';
+  else if(t.includes('switch') || t.includes('router') || t.includes('wifi')) cls += ' network';
+
+  return `<span class="${cls}">${type || '-'}</span>`;
+}
+
+function warrantyBadge(dateText){
+  if(!dateText){
+    return '<span class="warranty none">Không có</span>';
+  }
+
+  const today = new Date();
+  const end = new Date(dateText);
+  const diff = Math.ceil((end - today) / (1000 * 60 * 60 * 24));
+
+  if(diff < 0){
+    return '<span class="warranty expired">Hết hạn</span>';
+  }
+
+  if(diff <= 60){
+    return `<span class="warranty warn">Còn ${diff} ngày</span>`;
+  }
+
+  return '<span class="warranty ok">Còn hạn</span>';
+}
 function assetNote(a){ return a.note ?? ''; }
 
 function deptIdByName(name){
