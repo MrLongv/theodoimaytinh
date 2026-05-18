@@ -1064,3 +1064,102 @@ function checkLogin(){
     $('loginScreen').style.display = 'none';
   }
 }
+function exportExcel(){
+
+  if(!assets.length){
+    showToast(
+      'Không có dữ liệu để xuất',
+      'warn',
+      'Xuất Excel'
+    );
+    return;
+  }
+
+  const now = new Date();
+
+  const title = [
+    ['CÔNG TY TNHH MAY XK VIỆT HỒNG'],
+    ['BÁO CÁO TÀI SẢN IT'],
+    ['Ngày xuất: ' + now.toLocaleDateString('vi-VN')],
+    []
+  ];
+
+  const headers = [
+    'STT',
+    'Mã tài sản',
+    'Loại',
+    'Tên tài sản',
+    'Serial',
+    'Phòng ban',
+    'Người dùng',
+    'Ngày mua',
+    'Hạn bảo hành',
+    'Trạng thái',
+    'Ghi chú'
+  ];
+
+  const rows = assets.map((a, index) => [
+    index + 1,
+    assetCode(a),
+    assetType(a),
+    assetName(a),
+    assetSerial(a),
+    assetDept(a),
+    assetUser(a),
+    assetPurchase(a),
+    assetWarranty(a),
+    statusLabel(a.status),
+    assetNote(a)
+  ]);
+
+  const data = [
+    ...title,
+    headers,
+    ...rows
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(data);
+
+  ws['!cols'] = [
+    {wch:6},
+    {wch:16},
+    {wch:14},
+    {wch:42},
+    {wch:18},
+    {wch:26},
+    {wch:22},
+    {wch:14},
+    {wch:16},
+    {wch:16},
+    {wch:32}
+  ];
+
+  ws['!merges'] = [
+    {s:{r:0,c:0}, e:{r:0,c:10}},
+    {s:{r:1,c:0}, e:{r:1,c:10}},
+    {s:{r:2,c:0}, e:{r:2,c:10}}
+  ];
+
+  const wb = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    ws,
+    'Bao_cao_tai_san_IT'
+  );
+
+  const fileName =
+    'bao_cao_tai_san_it_' +
+    now.getFullYear() + '-' +
+    String(now.getMonth() + 1).padStart(2,'0') + '-' +
+    String(now.getDate()).padStart(2,'0') +
+    '.xlsx';
+
+  XLSX.writeFile(wb, fileName);
+
+  showToast(
+    'Đã xuất file Excel',
+    'success',
+    'Thành công'
+  );
+}
