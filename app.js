@@ -1108,7 +1108,11 @@ function exportExcel(){
     assetUser(a),
     assetPurchase(a),
     assetWarranty(a),
-    statusLabel(a.status),
+    ({
+  use: 'Đang sử dụng',
+  stock: 'Trong kho',
+  repair: 'Đang sửa'
+}[a.status] || a.status),
     assetNote(a)
   ]);
 
