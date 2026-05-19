@@ -388,14 +388,18 @@ function matchAsset(a,q){
   q = norm(q);
 
   const text = [
-    assetCode(a),
-    assetType(a),
-    assetName(a),
-    assetSerial(a),
-    assetDept(a),
-    assetUser(a),
-    a.status
-  ].join(' ');
+  assetCode(a),
+  assetType(a),
+  assetName(a),
+  assetSerial(a),
+  assetCpu(a),
+  assetRam(a),
+  assetStorage(a),
+  assetOs(a),
+  assetDept(a),
+  assetUser(a),
+  a.status
+].join(' ');
 
   return !q || norm(text).includes(q);
 }
@@ -611,9 +615,20 @@ function openAssetModal(){
 
   $('assetModalTitle').textContent = 'Thêm tài sản';
 
-  ['fCode','fName','fSerial','fUser','fPurchase','fNote'].forEach(id => {
-    $(id).value = '';
-  });
+  [
+  'fCode',
+  'fName',
+  'fSerial',
+  'fCpu',
+  'fRam',
+  'fStorage',
+  'fOs',
+  'fUser',
+  'fPurchase',
+  'fNote'
+].forEach(id => {
+  $(id).value = '';
+});
 
   $('fStatus').value = 'stock';
   $('fWarrantyMonths').value = 12;
@@ -644,7 +659,17 @@ function editAsset(id){
 
   $('fSerial').value =
     assetSerial(a);
+$('fCpu').value =
+  assetCpu(a);
 
+$('fRam').value =
+  assetRam(a);
+
+$('fStorage').value =
+  assetStorage(a);
+
+$('fOs').value =
+  assetOs(a);
   $('fDept').value =
     assetDept(a);
 
@@ -707,11 +732,19 @@ function formAssetPayload(){
       $('fSerial').value.trim(),
 
     brand: '',
-    model: '',
-    cpu: '',
-    ram: '',
-    storage: '',
-    os: '',
+model: '',
+
+cpu:
+  $('fCpu').value.trim(),
+
+ram:
+  $('fRam').value.trim(),
+
+storage:
+  $('fStorage').value.trim(),
+
+os:
+  $('fOs').value.trim(),
 
     department_id:
       dept ? dept.id : null,
@@ -1253,3 +1286,7 @@ function calcWarrantyEnd(purchaseDate, months){
 
   return d.toISOString().split('T')[0];
 }
+function assetCpu(a){ return a.cpu ?? ''; }
+function assetRam(a){ return a.ram ?? ''; }
+function assetStorage(a){ return a.storage ?? ''; }
+function assetOs(a){ return a.os ?? ''; }
