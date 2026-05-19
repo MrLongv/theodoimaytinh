@@ -50,39 +50,24 @@
       </div>
       <div class="top-actions">
 
-  <div class="top-actions-row">
-    <div class="pill" id="todayText"></div>
+<div class="top-actions">
+  <div class="pill" id="todayText"></div>
 
-    <button
-      class="btn ghost"
-      onclick="logoutAdmin()"
-    >
-      Đăng xuất
-    </button>
-  </div>
+  <button class="btn ghost" onclick="logoutAdmin()">Đăng xuất</button>
 
-  <div class="top-actions-row action-row">
-    <button class="btn ghost" onclick="exportExcel()">
-      ⬇ Xuất Excel
-    </button>
+  <button class="btn ghost" onclick="exportExcel()">⬇ Xuất Excel</button>
 
-    <label class="btn blue" for="excelImport">
-      ⬆ Import Excel
-    </label>
+  <label class="btn blue" for="excelImport">⬆ Import Excel</label>
 
-    <input
-      type="file"
-      id="excelImport"
-      accept=".xlsx,.xls,.csv"
-      hidden
-      onchange="importExcel(event)"
-    >
+  <input
+    type="file"
+    id="excelImport"
+    accept=".xlsx,.xls,.csv"
+    hidden
+    onchange="importExcel(event)"
+  >
 
-    <button class="btn primary" onclick="openAssetModal()">
-      + Thêm tài sản
-    </button>
-  </div>
-
+  <button class="btn primary" onclick="openAssetModal()">+ Thêm tài sản</button>
 </div>
 
     <section class="view active" id="dashboard">
