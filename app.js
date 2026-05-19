@@ -1280,93 +1280,251 @@ function checkLogin(){
 function exportExcel(){
 
   if(!assets.length){
-    showToast(
-      'Không có dữ liệu để xuất',
-      'warn',
-      'Xuất Excel'
-    );
+    showToast('Không có dữ liệu để xuất', 'warn', 'Xuất Excel');
     return;
   }
 
   const now = new Date();
+  const dateText = now.toLocaleDateString('vi-VN');
 
-  const title = [
-    ['CÔNG TY TNHH MAY XK VIỆT HỒNG'],
-    ['BÁO CÁO TÀI SẢN IT'],
-    ['Ngày xuất: ' + now.toLocaleDateString('vi-VN')],
-    []
+  function statusVi(v){
+    return ({
+      use:'Đang sử dụng',
+      stock:'Trong kho',
+      repair:'Đang sửa',
+      lost:'Mất / thất lạc',
+      disposal:'Thanh lý'
+    }[v] || v || '');
+  }
+
+  function makeSheet(title, headers, rows){
+    const data = [
+      ['CÔNG TY TNHH MAY XK VIỆT HỒNG'],
+      [title],
+      ['Ngày xuất: ' + dateText],
+      [],
+      headers,
+      ...rows
+    ];
+
+    const ws = XLSX.utils.aoa_to_sheet(data);
+
+    ws['!merges'] = [
+      {s:{r:0,c:0}, e:{r:0,c:headers.length-1}},
+      {s:{r:1,c:0}, e:{r:1,c:headers.length-1}},
+      {s:{r:2,c:0}, e:{r:2,c:headers.length-1}}
+    ];
+
+    ws['!cols'] = headers.map(h => ({
+      wch: Math.min(Math.max(String(h).length + 6, 14), 36)
+    }));
+
+    return ws;
+  }
+
+  const wb = XLSX.utils.book_new();
+
+  const summaryRows = [
+    ['Tổng tài sản', assets.length],
+    ['Đang sử dụng', assets.filter(a => a.status === 'use').length],
+    ['Trong kho', assets.filter(a => a.status === 'stock').length],
+    ['Đang sửa', assets.filter(a => a.status === 'repair').length],
+    ['RAM dưới 8GB', assets.filter(isLowRam).length],
+    ['Còn dùng HDD', assets.filter(isHdd).length],
+    ['Máy trên 5 năm', assets.filter(isOldAsset).length],
+    ['Tổng cần nâng cấp', assets.filter(needUpgrade).length]
   ];
 
-  const headers = [
-    'STT',
-    'Mã tài sản',
-    'Loại',
-    'Tên tài sản',
-    'Serial',
-    'Phòng ban',
-    'Người dùng',
-    'Ngày mua',
-    'Hạn bảo hành',
-    'Trạng thái',
-    'Ghi chú'
-  ];
+  XLSX.utils.book_append_sheet(
+    wb,
+    makeSheet(
+      'TỔNG QUAN TÀI SẢN IT',
+      ['Chỉ tiêu', 'Số lượng'],
+      summaryRows
+    ),
+    'Tong_quan'
+  );
 
-  const rows = assets.map((a, index) => [
-    index + 1,
+  const assetRows = assets.map((a, i) => [
+    i + 1,
     assetCode(a),
     assetType(a),
     assetName(a),
     assetSerial(a),
+    assetCpu(a),
+    assetRam(a),
+    assetStorage(a),
+    assetOs(a),
     assetDept(a),
     assetUser(a),
     assetPurchase(a),
     assetWarranty(a),
-    ({
-  use: 'Đang sử dụng',
-  stock: 'Trong kho',
-  repair: 'Đang sửa'
-}[a.status] || a.status),
+    statusVi(a.status),
+    needUpgrade(a) ? 'Cần nâng cấp' : 'Ổn',
+    upgradeReason(a),
     assetNote(a)
   ]);
 
-  const data = [
-    ...title,
-    headers,
-    ...rows
-  ];
+  XLSX.utils.book_append_sheet(
+    wb,
+    makeSheet(
+      'DANH SÁCH CHI TIẾT TÀI SẢN IT',
+      [
+        'STT',
+        'Mã tài sản',
+        'Loại',
+        'Tên tài sản',
+        'Serial',
+        'CPU',
+        'RAM',
+        'Ổ cứng',
+        'Hệ điều hành',
+        'Phòng ban',
+        'Người dùng',
+        'Ngày mua',
+        'Hạn bảo hành',
+        'Trạng thái',
+        'Đánh giá',
+        'Lý do cần nâng cấp',
+        'Ghi chú'
+      ],
+      assetRows
+    ),
+    'Tai_san_chi_tiet'
+  );
 
-  const ws = XLSX.utils.aoa_to_sheet(data);
+  const deptRows = departments.map(d => {
+    const list = assets.filter(a => norm(assetDept(a)) === norm(d.name));
 
-  ws['!cols'] = [
-    {wch:6},
-    {wch:16},
-    {wch:14},
-    {wch:42},
-    {wch:18},
-    {wch:26},
-    {wch:22},
-    {wch:14},
-    {wch:16},
-    {wch:16},
-    {wch:32}
-  ];
-
-  ws['!merges'] = [
-    {s:{r:0,c:0}, e:{r:0,c:10}},
-    {s:{r:1,c:0}, e:{r:1,c:10}},
-    {s:{r:2,c:0}, e:{r:2,c:10}}
-  ];
-
-  const wb = XLSX.utils.book_new();
+    return [
+      d.name,
+      list.length,
+      list.filter(a => a.status === 'use').length,
+      list.filter(a => a.status === 'stock').length,
+      list.filter(a => a.status === 'repair').length,
+      list.filter(needUpgrade).length
+    ];
+  }).filter(r => r[1] > 0);
 
   XLSX.utils.book_append_sheet(
     wb,
-    ws,
-    'Bao_cao_tai_san_IT'
+    makeSheet(
+      'THỐNG KÊ THEO PHÒNG BAN',
+      [
+        'Phòng ban',
+        'Tổng tài sản',
+        'Đang sử dụng',
+        'Trong kho',
+        'Đang sửa',
+        'Cần nâng cấp'
+      ],
+      deptRows
+    ),
+    'Theo_phong_ban'
+  );
+
+  const upgradeRows = assets
+    .filter(needUpgrade)
+    .map((a, i) => [
+      i + 1,
+      assetCode(a),
+      assetType(a),
+      assetName(a),
+      assetCpu(a),
+      assetRam(a),
+      assetStorage(a),
+      assetOs(a),
+      assetDept(a),
+      assetUser(a),
+      assetPurchase(a),
+      upgradeReason(a)
+    ]);
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    makeSheet(
+      'DANH SÁCH MÁY CẦN NÂNG CẤP',
+      [
+        'STT',
+        'Mã tài sản',
+        'Loại',
+        'Tên tài sản',
+        'CPU',
+        'RAM',
+        'Ổ cứng',
+        'Hệ điều hành',
+        'Phòng ban',
+        'Người dùng',
+        'Ngày mua',
+        'Lý do'
+      ],
+      upgradeRows
+    ),
+    'Can_nang_cap'
+  );
+
+  const repairRows = repairs.map((r, i) => [
+    i + 1,
+    repairDate(r),
+    repairAssetCode(r),
+    r.asset_name || '',
+    repairIssue(r),
+    repairTech(r),
+    repairCost(r),
+    repairStatusLabel(repairStatus(r))
+  ]);
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    makeSheet(
+      'DANH SÁCH SỬA CHỮA',
+      [
+        'STT',
+        'Ngày',
+        'Mã tài sản',
+        'Tên tài sản',
+        'Nội dung lỗi',
+        'Người xử lý',
+        'Chi phí',
+        'Trạng thái'
+      ],
+      repairRows
+    ),
+    'Sua_chua'
+  );
+
+  const assignmentRows = assignments.map((a, i) => [
+    i + 1,
+    assignmentDate(a),
+    assignmentAssetCode(a),
+    a.asset_name || '',
+    assignmentType(a),
+    assignmentUser(a),
+    assignmentDept(a),
+    assignmentNote(a)
+  ]);
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    makeSheet(
+      'LỊCH SỬ CẤP PHÁT THU HỒI',
+      [
+        'STT',
+        'Ngày',
+        'Mã tài sản',
+        'Tên tài sản',
+        'Loại phiếu',
+        'Người nhận / trả',
+        'Phòng ban',
+        'Ghi chú'
+      ],
+      assignmentRows
+    ),
+    'Cap_phat_thu_hoi'
   );
 
   const fileName =
-    'bao_cao_tai_san_it_' +
+    'bao_cao_tai_san_it_day_du_' +
     now.getFullYear() + '-' +
     String(now.getMonth() + 1).padStart(2,'0') + '-' +
     String(now.getDate()).padStart(2,'0') +
@@ -1374,12 +1532,9 @@ function exportExcel(){
 
   XLSX.writeFile(wb, fileName);
 
-  showToast(
-    'Đã xuất file Excel',
-    'success',
-    'Thành công'
-  );
+  showToast('Đã xuất báo cáo Excel đầy đủ', 'success', 'Thành công');
 }
+
 function calcWarrantyEnd(purchaseDate, months){
 
   if(!purchaseDate) return '';
