@@ -1167,3 +1167,15 @@ function exportExcel(){
     'Thành công'
   );
 }
+function calcWarrantyEnd(purchaseDate, months){
+
+  if(!purchaseDate) return '';
+
+  const d = new Date(purchaseDate);
+
+  d.setMonth(
+    d.getMonth() + Number(months || 0)
+  );
+
+  return d.toISOString().split('T')[0];
+}
