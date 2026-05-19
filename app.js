@@ -2069,3 +2069,6 @@ function renderRepairTrendChart(){
     }
   });
 }
+function assetMonitorName(a){ return a.monitor_name ?? ''; }
+function assetMonitorSize(a){ return a.monitor_size ?? ''; }
+function assetMonitorSerial(a){ return a.monitor_serial ?? ''; }
