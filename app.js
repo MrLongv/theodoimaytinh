@@ -264,6 +264,23 @@ async function loadRemote(){
 
     }
 
+    const rep = await fetch(
+      CURRENT_API_BASE + '/api/repairs',
+      {
+        headers:{
+          Authorization:'Bearer ' + IT_TOKEN
+        }
+      }
+    );
+
+    if(rep.ok){
+      const repairData = await rep.json();
+
+      if(Array.isArray(repairData)){
+        repairs = repairData;
+      }
+    }
+
   }catch(e){
 
     console.warn(
@@ -598,18 +615,34 @@ function renderDept(){
 }
 
 function renderRepairs(){
+
   $('repairRows').innerHTML = repairs.map(r => `
     <tr>
-      <td>${r.date}</td>
-      <td><b>${r.asset}</b></td>
-      <td>${r.issue}</td>
-      <td>${r.tech}</td>
-      <td>${money(r.cost)}</td>
-      <td>${r.status}</td>
-    </tr>
-  `).join('') || '<tr><td colspan="6">Chưa có sửa chữa</td></tr>';
-}
+      <td>${repairDate(r)}</td>
 
+      <td>
+        <b>${repairAssetCode(r)}</b>
+        <div style="font-size:12px;color:var(--muted)">
+          ${r.asset_name || ''}
+        </div>
+      </td>
+
+      <td>${repairIssue(r)}</td>
+
+      <td>${repairTech(r)}</td>
+
+      <td>${money(repairCost(r))}</td>
+
+      <td>${repairStatusLabel(repairStatus(r))}</td>
+
+      <td>
+        <button class="btn ghost" onclick="editRepair(${r.id})">Sửa</button>
+        <button class="btn ghost" onclick="markRepairDone(${r.id})">Hoàn tất</button>
+        <button class="btn danger" onclick="deleteRepair(${r.id})">Xóa</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="7">Chưa có sửa chữa</td></tr>';
+}
 function renderAssignments(){
   $('assignRows').innerHTML = assignments.map(a => `
     <tr>
@@ -1356,3 +1389,129 @@ function assetCpu(a){ return a.cpu ?? ''; }
 function assetRam(a){ return a.ram ?? ''; }
 function assetStorage(a){ return a.storage ?? ''; }
 function assetOs(a){ return a.os ?? ''; }
+function repairAssetCode(r){
+  return r.asset_code ?? r.asset ?? '';
+}
+
+function repairDate(r){
+  return r.repair_date ?? r.date ?? '';
+}
+
+function repairIssue(r){
+  return r.issue ?? '';
+}
+
+function repairTech(r){
+  return r.technician ?? r.tech ?? '';
+}
+
+function repairCost(r){
+  return r.cost ?? 0;
+}
+
+function repairStatus(r){
+  return r.status ?? '';
+}
+
+function repairStatusLabel(v){
+  if(v === 'processing') return 'Đang xử lý';
+  if(v === 'done') return 'Hoàn tất';
+  if(v === 'cancel') return 'Hủy';
+  return v || '';
+}
+let editingRepairId = null;
+
+function repairPayload(){
+  const code = $('rAsset').value;
+  const asset = assets.find(a => assetCode(a) === code);
+
+  return {
+    asset_id: asset ? asset.id : null,
+    repair_date: $('rDate').value,
+    issue: $('rIssue').value.trim(),
+    solution: '',
+    technician: $('rTech').value.trim() || 'IT',
+    cost: Number($('rCost').value || 0),
+    status: 'processing',
+    note: ''
+  };
+}
+
+function editRepair(id){
+  const r = repairs.find(x => x.id === id);
+  if(!r) return;
+
+  editingRepairId = id;
+
+  $('rDate').value = repairDate(r);
+  $('rAsset').value = repairAssetCode(r);
+  $('rIssue').value = repairIssue(r);
+  $('rTech').value = repairTech(r);
+  $('rCost').value = repairCost(r);
+
+  $('repairModal').classList.add('show');
+}
+
+async function saveRepair(){
+  const payload = repairPayload();
+
+  if(!payload.asset_id){
+    showToast('Chọn tài sản cần sửa', 'warn', 'Thiếu tài sản');
+    return;
+  }
+
+  if(!payload.issue){
+    showToast('Nhập nội dung lỗi', 'warn', 'Thiếu thông tin');
+    return;
+  }
+
+  if(editingRepairId){
+    await saveRemote('/api/repairs/' + editingRepairId, payload, 'PUT');
+    showToast('Đã cập nhật sửa chữa', 'success', 'Thành công');
+  }else{
+    await saveRemote('/api/repairs', payload, 'POST');
+    showToast('Đã ghi nhận sửa chữa', 'success', 'Thành công');
+  }
+
+  editingRepairId = null;
+  closeModal('repairModal');
+
+  await loadRemote();
+  renderAll();
+}
+
+async function markRepairDone(id){
+  const r = repairs.find(x => x.id === id);
+  if(!r) return;
+
+  const ok = await showConfirm('Đánh dấu phiếu sửa chữa này là hoàn tất?', 'Hoàn tất sửa chữa');
+  if(!ok) return;
+
+  await saveRemote('/api/repairs/' + id, {
+    asset_id: r.asset_id,
+    repair_date: repairDate(r),
+    issue: repairIssue(r),
+    solution: r.solution || '',
+    technician: repairTech(r),
+    cost: repairCost(r),
+    status: 'done',
+    note: r.note || ''
+  }, 'PUT');
+
+  showToast('Đã hoàn tất sửa chữa', 'success', 'Thành công');
+
+  await loadRemote();
+  renderAll();
+}
+
+async function deleteRepair(id){
+  const ok = await showConfirm('Bạn có chắc muốn xóa phiếu sửa chữa này?', 'Xóa sửa chữa');
+  if(!ok) return;
+
+  await saveRemote('/api/repairs/' + id, null, 'DELETE');
+
+  showToast('Đã xóa phiếu sửa chữa', 'success', 'Thành công');
+
+  await loadRemote();
+  renderAll();
+}
