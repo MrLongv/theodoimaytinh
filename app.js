@@ -935,28 +935,16 @@ async function deleteAsset(id){
 }
 
 function openRepairModal(){
+  editingRepairId = null;
+
   $('rDate').value = todayISO();
   $('rIssue').value = '';
+  $('rTech').value = 'IT';
   $('rCost').value = 0;
+
   refreshAssetOptions();
+
   $('repairModal').classList.add('show');
-}
-
-function saveRepair(){
-  repairs.unshift({
-    date: $('rDate').value,
-    asset: $('rAsset').value,
-    issue: $('rIssue').value,
-    tech: $('rTech').value,
-    cost: $('rCost').value,
-    status: 'Đang xử lý'
-  });
-
-  const a = assets.find(x => assetCode(x) === $('rAsset').value);
-  if(a) a.status = 'repair';
-
-  closeModal('repairModal');
-  renderAll();
 }
 
 function openAssignModal(){
