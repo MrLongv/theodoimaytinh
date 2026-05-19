@@ -290,7 +290,7 @@ tbody tr:hover{
   color:var(--muted);
 }
 .stats-grid{
-  grid-template-columns:1fr 1fr;
+  grid-template-columns:repeat(3,minmax(0,1fr));
   margin-bottom:16px;
 }
 
