@@ -2,20 +2,19 @@ let IT_TOKEN = localStorage.getItem('IT_TOKEN') || '';
 let CURRENT_API_BASE = localStorage.getItem('IT_ASSET_API_BASE') || API_BASE || '';
 
 const departments = [
-  {name:'Phòng hành chính quản trị', code:'HCQT', children:['Bảo vệ','Tạp vụ','Nhà ăn']},
-  {name:'Phòng nhân sự', code:'NS', children:[]},
-  {name:'Phòng kế toán', code:'KT', children:[]},
-  {name:'Phòng kế hoạch', code:'KH', children:[]},
-  {name:'Phòng kỹ thuật công nghệ', code:'KTCN', children:[]},
-  {name:'Kho NPL', code:'NPL', children:[]},
-  {name:'Kho thành phẩm', code:'TP', children:[]},
-  {name:'Tổ cắt', code:'CAT', children:[]},
-  {name:'Cơ điện', code:'CD', children:['Thợ điện','Thợ máy']},
-  {name:'XN1', code:'XN1', children:['Tổ 1','Tổ 3','Tổ 5','Tổ 7','Tổ 9']},
-  {name:'XN2', code:'XN2', children:['Tổ 11','Tổ 13','Tổ 15','Tổ 17']},
-  {name:'XN3', code:'XN3', children:['Tổ 19','Tổ 21','Tổ 23','Tổ 25','Tổ 27']}
+  {id:1,name:'Phòng hành chính quản trị',code:'HCQT',children:['Bảo vệ','Tạp vụ','Nhà ăn']},
+  {id:2,name:'Phòng nhân sự',code:'NS',children:[]},
+  {id:3,name:'Phòng kế toán',code:'KT',children:[]},
+  {id:4,name:'Phòng kế hoạch',code:'KH',children:[]},
+  {id:5,name:'Phòng kỹ thuật công nghệ',code:'KTCN',children:[]},
+  {id:6,name:'Kho NPL',code:'NPL',children:[]},
+  {id:7,name:'Kho thành phẩm',code:'TP',children:[]},
+  {id:8,name:'Tổ cắt',code:'CAT',children:[]},
+  {id:9,name:'Cơ điện',code:'CD',children:['Thợ điện','Thợ máy']},
+  {id:10,name:'XN1',code:'XN1',children:['Tổ 1','Tổ 3','Tổ 5','Tổ 7','Tổ 9']},
+  {id:11,name:'XN2',code:'XN2',children:['Tổ 11','Tổ 13','Tổ 15','Tổ 17']},
+  {id:12,name:'XN3',code:'XN3',children:['Tổ 19','Tổ 21','Tổ 23','Tổ 25','Tổ 27']}
 ];
-
 const assetTypes = ['PC','Laptop','Màn hình','Máy in','Camera','Đầu ghi','Switch','Router/Wifi','UPS','Máy chấm công','Máy scan','Thiết bị khác'];
 
 const statuses = [
@@ -407,7 +406,7 @@ function renderDashboardTable(){
 
   const rows = assets
     .filter(a => matchAsset(a,q))
-    .filter(a => !st || a.status === st)
+    .filter(a => !st || norm(a.status) === norm(st))
     .slice(0,10);
 
   $('dashRows').innerHTML = rows.map(a => `
@@ -470,9 +469,9 @@ function renderAssets(){
 
   const rows = assets
     .filter(a => matchAsset(a,q))
-    .filter(a => !type || assetType(a) === type)
-    .filter(a => !dept || assetDept(a) === dept)
-    .filter(a => !st || a.status === st);
+.filter(a => !type || norm(assetType(a)) === norm(type))
+.filter(a => !dept || norm(assetDept(a)) === norm(dept))
+.filter(a => !st || norm(a.status) === norm(st));
 
   lastAssetRows = rows;
 
@@ -617,6 +616,7 @@ function openAssetModal(){
   });
 
   $('fStatus').value = 'stock';
+  $('fWarrantyMonths').value = 12;
   $('assetModal').classList.add('show');
 }
 
