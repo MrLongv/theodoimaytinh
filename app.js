@@ -641,27 +641,77 @@ function editAsset(id){
   $('assetModal').classList.add('show');
 }
 
+function calcWarrantyEnd(purchaseDate, months){
+
+  if(!purchaseDate) return '';
+
+  const d = new Date(purchaseDate);
+
+  d.setMonth(
+    d.getMonth() + Number(months || 0)
+  );
+
+  return d.toISOString().split('T')[0];
+}
+
 function formAssetPayload(){
+
   const deptName = $('fDept').value;
-  const dept = departments.find(d => d.name === deptName);
+
+  const dept = departments.find(
+    d => d.name === deptName
+  );
+
+  const purchaseDate =
+    $('fPurchaseDate').value;
+
+  const warrantyMonths =
+    $('fWarrantyMonths').value;
 
   return {
-    asset_code: $('fCode').value.trim(),
-    asset_type: $('fType').value,
-    asset_name: $('fName').value.trim(),
-    serial_number: $('fSerial').value.trim(),
+
+    asset_code:
+      $('fCode').value.trim(),
+
+    asset_type:
+      $('fType').value,
+
+    asset_name:
+      $('fName').value.trim(),
+
+    serial_number:
+      $('fSerial').value.trim(),
+
     brand: '',
     model: '',
     cpu: '',
     ram: '',
     storage: '',
     os: '',
-    department_id: dept ? dept.id : null,
-    assigned_to: $('fUser').value.trim(),
-    purchase_date: $('fPurchase').value,
-    warranty_end: '',
-    status: $('fStatus').value,
-    note: $('fNote').value.trim()
+
+    department_id:
+      dept ? dept.id : null,
+
+    assigned_to:
+      $('fUser').value.trim(),
+
+    purchase_date:
+      purchaseDate,
+
+    warranty_months:
+      warrantyMonths,
+
+    warranty_end:
+      calcWarrantyEnd(
+        purchaseDate,
+        warrantyMonths
+      ),
+
+    status:
+      $('fStatus').value,
+
+    note:
+      $('fNote').value.trim()
   };
 }
 
