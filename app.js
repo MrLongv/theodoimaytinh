@@ -980,30 +980,17 @@ function openRepairModal(){
 }
 
 function openAssignModal(){
+
+  editingAssignmentId = null;
+
   $('aDate').value = todayISO();
+  $('aUser').value = '';
+  $('aNote').value = '';
+  $('aType').value = 'Cấp phát';
+
   refreshAssetOptions();
+
   $('assignModal').classList.add('show');
-}
-
-function saveAssignment(){
-  assignments.unshift({
-    date: $('aDate').value,
-    asset: $('aAsset').value,
-    type: $('aType').value,
-    user: $('aUser').value,
-    dept: $('aDept').value,
-    note: $('aNote').value
-  });
-
-  const a = assets.find(x => assetCode(x) === $('aAsset').value);
-  if(a){
-    a.assigned_to = $('aUser').value;
-    a.department_name = $('aDept').value;
-    a.status = $('aType').value === 'Thu hồi' ? 'stock' : 'use';
-  }
-
-  closeModal('assignModal');
-  renderAll();
 }
 
 function closeModal(id){
@@ -1557,4 +1544,145 @@ function assignmentDept(a){
 
 function assignmentNote(a){
   return a.note ?? '';
+}
+let editingAssignmentId = null;
+
+function assignmentPayload(){
+
+  const code = $('aAsset').value;
+
+  const asset = assets.find(
+    a => assetCode(a) === code
+  );
+
+  const deptName = $('aDept').value;
+
+  const dept = departments.find(
+    d => d.name === deptName
+  );
+
+  return {
+    asset_id: asset ? asset.id : null,
+    assigned_date: $('aDate').value,
+    type: $('aType').value,
+    assigned_to: $('aUser').value.trim(),
+    department: deptName,
+    department_id: dept ? dept.id : null,
+    note: $('aNote').value.trim()
+  };
+}
+
+function editAssignment(id){
+
+  const a = assignments.find(
+    x => x.id === id
+  );
+
+  if(!a) return;
+
+  editingAssignmentId = id;
+
+  $('aDate').value =
+    assignmentDate(a);
+
+  $('aAsset').value =
+    assignmentAssetCode(a);
+
+  $('aType').value =
+    assignmentType(a);
+
+  $('aUser').value =
+    assignmentUser(a);
+
+  $('aDept').value =
+    assignmentDept(a);
+
+  $('aNote').value =
+    assignmentNote(a);
+
+  $('assignModal').classList.add('show');
+}
+
+async function saveAssignment(){
+
+  const payload = assignmentPayload();
+
+  if(!payload.asset_id){
+    showToast(
+      'Chọn tài sản cần cấp phát / thu hồi',
+      'warn',
+      'Thiếu tài sản'
+    );
+    return;
+  }
+
+  if(payload.type !== 'Thu hồi' && !payload.assigned_to){
+    showToast(
+      'Nhập người nhận thiết bị',
+      'warn',
+      'Thiếu người nhận'
+    );
+    return;
+  }
+
+  if(editingAssignmentId){
+
+    await saveRemote(
+      '/api/assignments/' + editingAssignmentId,
+      payload,
+      'PUT'
+    );
+
+    showToast(
+      'Đã cập nhật phiếu',
+      'success',
+      'Thành công'
+    );
+
+  }else{
+
+    await saveRemote(
+      '/api/assignments',
+      payload,
+      'POST'
+    );
+
+    showToast(
+      'Đã tạo phiếu',
+      'success',
+      'Thành công'
+    );
+  }
+
+  editingAssignmentId = null;
+
+  closeModal('assignModal');
+
+  await loadRemote();
+  renderAll();
+}
+
+async function deleteAssignment(id){
+
+  const ok = await showConfirm(
+    'Bạn có chắc muốn xóa phiếu này?',
+    'Xóa phiếu'
+  );
+
+  if(!ok) return;
+
+  await saveRemote(
+    '/api/assignments/' + id,
+    null,
+    'DELETE'
+  );
+
+  showToast(
+    'Đã xóa phiếu',
+    'success',
+    'Thành công'
+  );
+
+  await loadRemote();
+  renderAll();
 }
