@@ -363,6 +363,34 @@ function renderDashboardStats(){
       </div>
     `;
   }
+if($('upgradeStats')){
+  const lowRam = assets.filter(isLowRam).length;
+  const hdd = assets.filter(isHdd).length;
+  const old = assets.filter(isOldAsset).length;
+  const totalNeed = assets.filter(needUpgrade).length;
+
+  $('upgradeStats').innerHTML = `
+    <div class="stat-row stat-danger">
+      <b>🚨 Tổng cần nâng cấp</b>
+      <span>${totalNeed}</span>
+    </div>
+
+    <div class="stat-row stat-warn">
+      <b>RAM dưới 8GB</b>
+      <span>${lowRam}</span>
+    </div>
+
+    <div class="stat-row stat-warn">
+      <b>Còn dùng HDD</b>
+      <span>${hdd}</span>
+    </div>
+
+    <div class="stat-row stat-warn">
+      <b>Máy trên 5 năm</b>
+      <span>${old}</span>
+    </div>
+  `;
+}
 }
 function renderAll(){
   renderKpi();
