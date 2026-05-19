@@ -281,6 +281,23 @@ async function loadRemote(){
       }
     }
 
+    const ass = await fetch(
+      CURRENT_API_BASE + '/api/assignments',
+      {
+        headers:{
+          Authorization:'Bearer ' + IT_TOKEN
+        }
+      }
+    );
+
+    if(ass.ok){
+      const assignmentData = await ass.json();
+
+      if(Array.isArray(assignmentData)){
+        assignments = assignmentData;
+      }
+    }
+
   }catch(e){
 
     console.warn(
@@ -644,18 +661,33 @@ function renderRepairs(){
   `).join('') || '<tr><td colspan="7">Chưa có sửa chữa</td></tr>';
 }
 function renderAssignments(){
+
   $('assignRows').innerHTML = assignments.map(a => `
     <tr>
-      <td>${a.date}</td>
-      <td><b>${a.asset}</b></td>
-      <td>${a.type}</td>
-      <td>${a.user}</td>
-      <td>${a.dept}</td>
-      <td>${a.note || ''}</td>
-    </tr>
-  `).join('') || '<tr><td colspan="6">Chưa có phiếu</td></tr>';
-}
+      <td>${assignmentDate(a)}</td>
 
+      <td>
+        <b>${assignmentAssetCode(a)}</b>
+        <div style="font-size:12px;color:var(--muted)">
+          ${a.asset_name || ''}
+        </div>
+      </td>
+
+      <td>${assignmentType(a)}</td>
+
+      <td>${assignmentUser(a)}</td>
+
+      <td>${assignmentDept(a)}</td>
+
+      <td>${assignmentNote(a)}</td>
+
+      <td>
+        <button class="btn ghost" onclick="editAssignment(${a.id})">Sửa</button>
+        <button class="btn danger" onclick="deleteAssignment(${a.id})">Xóa</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="7">Chưa có phiếu</td></tr>';
+}
 function renderActivity(){
   const list = [
     ['Cập nhật tài sản','Đồng bộ danh sách tài sản từ D1'],
@@ -1502,4 +1534,27 @@ async function deleteRepair(id){
 
   await loadRemote();
   renderAll();
+}
+function assignmentAssetCode(a){
+  return a.asset_code ?? a.asset ?? '';
+}
+
+function assignmentDate(a){
+  return a.assigned_date ?? a.date ?? '';
+}
+
+function assignmentType(a){
+  return a.type ?? '';
+}
+
+function assignmentUser(a){
+  return a.assigned_to ?? a.user ?? '';
+}
+
+function assignmentDept(a){
+  return a.department ?? a.dept ?? '';
+}
+
+function assignmentNote(a){
+  return a.note ?? '';
 }
