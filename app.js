@@ -25,24 +25,9 @@ const statuses = [
   {value:'disposal', label:'Thanh lý'}
 ];
 
-let assets = [
-  {id:1, code:'IT-PC-001', type:'PC', name:'PC Core i5 / RAM 8GB / SSD 256GB', serial:'VH-PC001', dept:'Phòng nhân sự', user:'Nguyễn Thị A', purchase:'2024-01-15', status:'use', note:''},
-  {id:2, code:'IT-PR-002', type:'Máy in', name:'Canon LBP 2900', serial:'CN2900-02', dept:'Phòng kế toán', user:'Kế toán', purchase:'2023-08-20', status:'use', note:''},
-  {id:3, code:'IT-CAM-010', type:'Camera', name:'Hikvision IP 2MP khu vực cổng', serial:'HK010', dept:'Phòng hành chính quản trị', user:'Bảo vệ', purchase:'2023-11-02', status:'use', note:''},
-  {id:4, code:'IT-PC-014', type:'PC', name:'PC H81 / i3 / RAM 4GB / HDD 500GB', serial:'VH-PC014', dept:'XN1', user:'Tổ 1', purchase:'2020-04-05', status:'repair', note:'Nên nâng RAM/SSD'},
-  {id:5, code:'IT-SW-003', type:'Switch', name:'Switch 24 port Gigabit', serial:'SW24-03', dept:'Cơ điện', user:'Phòng server', purchase:'2022-09-10', status:'stock', note:''},
-  {id:6, code:'IT-LT-006', type:'Laptop', name:'Dell Latitude i5 / RAM 16GB', serial:'DL006', dept:'Phòng kế hoạch', user:'Trần Văn B', purchase:'2024-03-18', status:'use', note:''}
-];
-
-let repairs = [
-  {date:'2026-05-10', asset:'IT-PC-014', issue:'Máy chạy chậm, lỗi ổ cứng', tech:'IT', cost:450000, status:'Đang xử lý'},
-  {date:'2026-05-08', asset:'IT-PR-002', issue:'Kẹt giấy, vệ sinh cụm sấy', tech:'IT', cost:0, status:'Hoàn tất'}
-];
-
-let assignments = [
-  {date:'2026-05-01', asset:'IT-LT-006', type:'Cấp phát', user:'Trần Văn B', dept:'Phòng kế hoạch', note:'Cấp cho công việc kế hoạch'},
-  {date:'2026-04-22', asset:'IT-PC-001', type:'Điều chuyển', user:'Nguyễn Thị A', dept:'Phòng nhân sự', note:'Chuyển từ máy cũ sang máy mới'}
-];
+let assets = [];
+let repairs = [];
+let assignments = [];
 
 let editingId = null;
 let assetPage = 1;
