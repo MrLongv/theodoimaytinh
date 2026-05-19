@@ -773,25 +773,33 @@ function openAssetModal(){
   $('assetModalTitle').textContent = 'Thêm tài sản';
 
   [
-  'fCode',
-  'fName',
-  'fSerial',
-  'fCpu',
-  'fRam',
-  'fStorage',
-  'fOs',
-  'fUser',
-  'fPurchase',
-  'fNote'
-].forEach(id => {
-  $(id).value = '';
-});
+    'fCode',
+    'fName',
+    'fSerial',
+
+    'fCpu',
+    'fRam',
+    'fStorage',
+    'fOs',
+
+    'fMonitorName',
+    'fMonitorSize',
+    'fMonitorSerial',
+
+    'fUser',
+    'fPurchase',
+    'fNote'
+  ].forEach(id => {
+    if($(id)){
+      $(id).value = '';
+    }
+  });
 
   $('fStatus').value = 'stock';
   $('fWarrantyMonths').value = 12;
+
   $('assetModal').classList.add('show');
 }
-
 function editAsset(id){
 
   const a = assets.find(
@@ -816,17 +824,34 @@ function editAsset(id){
 
   $('fSerial').value =
     assetSerial(a);
-$('fCpu').value =
-  assetCpu(a);
 
-$('fRam').value =
-  assetRam(a);
+  $('fCpu').value =
+    assetCpu(a);
 
-$('fStorage').value =
-  assetStorage(a);
+  $('fRam').value =
+    assetRam(a);
 
-$('fOs').value =
-  assetOs(a);
+  $('fStorage').value =
+    assetStorage(a);
+
+  $('fOs').value =
+    assetOs(a);
+
+  if($('fMonitorName')){
+    $('fMonitorName').value =
+      assetMonitorName(a);
+  }
+
+  if($('fMonitorSize')){
+    $('fMonitorSize').value =
+      assetMonitorSize(a);
+  }
+
+  if($('fMonitorSerial')){
+    $('fMonitorSerial').value =
+      assetMonitorSerial(a);
+  }
+
   $('fDept').value =
     assetDept(a);
 
@@ -847,6 +872,7 @@ $('fOs').value =
 
   $('assetModal').classList.add('show');
 }
+
 function calcWarrantyEnd(purchaseDate, months){
 
   if(!purchaseDate) return '';
@@ -889,19 +915,35 @@ function formAssetPayload(){
       $('fSerial').value.trim(),
 
     brand: '',
-model: '',
 
-cpu:
-  $('fCpu').value.trim(),
+    model: '',
 
-ram:
-  $('fRam').value.trim(),
+    cpu:
+      $('fCpu').value.trim(),
 
-storage:
-  $('fStorage').value.trim(),
+    ram:
+      $('fRam').value.trim(),
 
-os:
-  $('fOs').value.trim(),
+    storage:
+      $('fStorage').value.trim(),
+
+    os:
+      $('fOs').value.trim(),
+
+    monitor_name:
+      $('fMonitorName')
+        ? $('fMonitorName').value.trim()
+        : '',
+
+    monitor_size:
+      $('fMonitorSize')
+        ? $('fMonitorSize').value.trim()
+        : '',
+
+    monitor_serial:
+      $('fMonitorSerial')
+        ? $('fMonitorSerial').value.trim()
+        : '',
 
     department_id:
       dept ? dept.id : null,
