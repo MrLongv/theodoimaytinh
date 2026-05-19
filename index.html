@@ -158,6 +158,17 @@
       >
         <option value="">Tất cả trạng thái</option>
       </select>
+      <select
+  class="field"
+  id="filterUpgrade"
+  onchange="assetPage=1;renderAssets()"
+>
+  <option value="">Tất cả cấu hình</option>
+  <option value="low_ram">RAM dưới 8GB</option>
+  <option value="hdd">Còn dùng HDD</option>
+  <option value="old">Máy trên 5 năm</option>
+  <option value="need_upgrade">Cần nâng cấp</option>
+</select>
     </div>
 
     <div class="table-wrap">
