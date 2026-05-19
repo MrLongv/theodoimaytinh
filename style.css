@@ -383,3 +383,38 @@ tbody tr:hover{
     grid-template-columns:1fr;
   }
 }
+.top-actions{
+  display:flex;
+  flex-direction:column;
+  align-items:flex-end;
+  gap:10px;
+}
+
+.top-actions-row{
+  display:flex;
+  gap:10px;
+  align-items:center;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+}
+
+.action-row .btn{
+  min-width:120px;
+  text-align:center;
+}
+
+@media(max-width:760px){
+  .top-actions{
+    align-items:stretch;
+    width:100%;
+  }
+
+  .top-actions-row{
+    justify-content:flex-start;
+  }
+
+  .action-row .btn{
+    flex:1;
+    min-width:140px;
+  }
+}
