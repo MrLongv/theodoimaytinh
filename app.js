@@ -1256,6 +1256,23 @@ async function importExcel(event){
         ram: String(row['RAM'] || '').trim(),
         storage: String(row['Ổ cứng'] || row['O cung'] || row['Storage'] || '').trim(),
         os: String(row['Hệ điều hành'] || row['He dieu hanh'] || row['OS'] || '').trim(),
+        monitor_name: String(
+  row['Màn hình'] ||
+  row['Man hinh'] ||
+  ''
+).trim(),
+
+monitor_size: String(
+  row['Kích thước màn hình'] ||
+  row['Kich thuoc man hinh'] ||
+  ''
+).trim(),
+
+monitor_serial: String(
+  row['Serial màn hình'] ||
+  row['Serial man hinh'] ||
+  ''
+).trim(),
         department_id: dept ? dept.id : null,
         assigned_to: String(row['Người dùng'] || row['Nguoi dung'] || '').trim(),
         purchase_date: String(row['Ngày mua'] || row['Ngay mua'] || '').trim(),
@@ -1411,11 +1428,7 @@ function exportExcel(){
 
   XLSX.utils.book_append_sheet(
     wb,
-    makeSheet(
-      'TỔNG QUAN TÀI SẢN IT',
-      ['Chỉ tiêu', 'Số lượng'],
-      summaryRows
-    ),
+    makeSheet('TỔNG QUAN TÀI SẢN IT', ['Chỉ tiêu', 'Số lượng'], summaryRows),
     'Tong_quan'
   );
 
@@ -1426,8 +1439,8 @@ function exportExcel(){
     assetName(a),
     assetSerial(a),
     assetMonitorName(a),
-  assetMonitorSize(a),
-  assetMonitorSerial(a),
+    assetMonitorSize(a),
+    assetMonitorSerial(a),
     assetCpu(a),
     assetRam(a),
     assetStorage(a),
@@ -1531,6 +1544,8 @@ function exportExcel(){
         'Mã tài sản',
         'Loại',
         'Tên tài sản',
+        'Màn hình',
+        'Kích thước màn hình',
         'CPU',
         'RAM',
         'Ổ cứng',
