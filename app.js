@@ -689,22 +689,47 @@ function renderAssignments(){
   `).join('') || '<tr><td colspan="7">Chưa có phiếu</td></tr>';
 }
 function renderActivity(){
-  const list = [
-    ['Cập nhật tài sản','Đồng bộ danh sách tài sản từ D1'],
-    ['Sửa chữa','IT-PC-014 đang xử lý lỗi ổ cứng'],
-    ['Cấp phát','IT-LT-006 cấp cho phòng kế hoạch'],
-    ['Kiểm kê','Bổ sung cơ cấu phòng ban đầy đủ']
-  ];
 
-  $('activityList').innerHTML = list.map(x => `
+  const list = [];
+
+  assets.slice(0, 3).forEach(a => {
+    list.push({
+      title: 'Cập nhật tài sản',
+      text: `${assetCode(a)} - ${assetName(a)}`
+    });
+  });
+
+  repairs.slice(0, 2).forEach(r => {
+    list.push({
+      title: repairStatus(r) === 'done' ? 'Hoàn tất sửa chữa' : 'Đang sửa chữa',
+      text: `${repairAssetCode(r)} - ${repairIssue(r)}`
+    });
+  });
+
+  assignments.slice(0, 2).forEach(a => {
+    list.push({
+      title: assignmentType(a),
+      text: `${assignmentAssetCode(a)} - ${assignmentUser(a) || 'Chưa nhập người nhận'}`
+    });
+  });
+
+  $('activityList').innerHTML = list.slice(0, 6).map(x => `
     <div class="activity">
       <div class="dot"></div>
       <div>
-        <b>${x[0]}</b>
-        <span>${x[1]}</span>
+        <b>${x.title}</b>
+        <span>${x.text}</span>
       </div>
     </div>
-  `).join('');
+  `).join('') || `
+    <div class="activity">
+      <div class="dot"></div>
+      <div>
+        <b>Chưa có hoạt động</b>
+        <span>Dữ liệu sẽ hiển thị khi có tài sản, sửa chữa hoặc cấp phát.</span>
+      </div>
+    </div>
+  `;
 }
 
 function refreshAssetOptions(){
