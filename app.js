@@ -403,7 +403,36 @@ function matchAsset(a,q){
 
   return !q || norm(text).includes(q);
 }
+function ramGB(a){
+  const m = String(assetRam(a)).match(/(\d+)/);
+  return m ? Number(m[1]) : 0;
+}
 
+function isLowRam(a){
+  return ramGB(a) > 0 && ramGB(a) < 8;
+}
+
+function isHdd(a){
+  return norm(assetStorage(a)).includes('hdd');
+}
+
+function isOldAsset(a){
+  return yearsOld(assetPurchase(a)) >= 5;
+}
+
+function needUpgrade(a){
+  return isLowRam(a) || isHdd(a) || isOldAsset(a);
+}
+
+function upgradeReason(a){
+  const reasons = [];
+
+  if(isLowRam(a)) reasons.push('RAM thấp');
+  if(isHdd(a)) reasons.push('Còn HDD');
+  if(isOldAsset(a)) reasons.push('Máy cũ >5 năm');
+
+  return reasons.join(', ') || 'Ổn';
+}
 function renderDashboardTable(){
   const q = $('dashSearch').value;
   const st = $('dashStatus').value;
@@ -470,12 +499,21 @@ function renderAssets(){
   const type = $('filterType')?.value || '';
   const dept = $('filterDept')?.value || '';
   const st = $('filterStatus')?.value || '';
+  const upgrade = $('filterUpgrade')?.value || '';
 
   const rows = assets
     .filter(a => matchAsset(a,q))
 .filter(a => !type || norm(assetType(a)) === norm(type))
 .filter(a => !dept || norm(assetDept(a)) === norm(dept))
-.filter(a => !st || norm(a.status) === norm(st));
+.filter(a => !st || norm(a.status) === norm(st))
+.filter(a => {
+  if(!upgrade) return true;
+  if(upgrade === 'low_ram') return isLowRam(a);
+  if(upgrade === 'hdd') return isHdd(a);
+  if(upgrade === 'old') return isOldAsset(a);
+  if(upgrade === 'need_upgrade') return needUpgrade(a);
+  return true;
+});
 
   lastAssetRows = rows;
 
