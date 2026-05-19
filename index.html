@@ -49,35 +49,41 @@
         <p id="pageSub">Theo dõi máy tính, màn hình, máy in, camera, mạng và lịch sử sửa chữa.</p>
       </div>
       <div class="top-actions">
-        <div class="pill" id="todayText"></div>
-         <button
-    class="btn ghost"
-    onclick="logoutAdmin()"
-  >
-    Đăng xuất
-  </button>
-        <button class="btn ghost" onclick="exportExcel()">⬇ Xuất Excel</button>
-        <div style="display:flex;gap:10px;flex-wrap:wrap">
 
-  <label class="btn blue" for="excelImport">
-    ⬆ Import Excel
-  </label>
+  <div class="top-actions-row">
+    <div class="pill" id="todayText"></div>
 
-  <input
-    type="file"
-    id="excelImport"
-    accept=".xlsx,.xls,.csv"
-    hidden
-    onchange="importExcel(event)"
-  >
+    <button
+      class="btn ghost"
+      onclick="logoutAdmin()"
+    >
+      Đăng xuất
+    </button>
+  </div>
 
-  <button class="btn primary" onclick="openAssetModal()">
-    + Thêm tài sản
-  </button>
+  <div class="top-actions-row action-row">
+    <button class="btn ghost" onclick="exportExcel()">
+      ⬇ Xuất Excel
+    </button>
+
+    <label class="btn blue" for="excelImport">
+      ⬆ Import Excel
+    </label>
+
+    <input
+      type="file"
+      id="excelImport"
+      accept=".xlsx,.xls,.csv"
+      hidden
+      onchange="importExcel(event)"
+    >
+
+    <button class="btn primary" onclick="openAssetModal()">
+      + Thêm tài sản
+    </button>
+  </div>
 
 </div>
-      </div>
-    </div>
 
     <section class="view active" id="dashboard">
       <div class="grid kpis">
