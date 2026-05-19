@@ -621,26 +621,50 @@ function openAssetModal(){
 }
 
 function editAsset(id){
-  const a = assets.find(x => x.id === id);
+
+  const a = assets.find(
+    x => x.id === id
+  );
+
   if(!a) return;
 
   editingId = id;
 
-  $('assetModalTitle').textContent = 'Sửa tài sản';
+  $('assetModalTitle').textContent =
+    'Sửa tài sản';
 
-  $('fCode').value = assetCode(a);
-  $('fType').value = assetType(a);
-  $('fName').value = assetName(a);
-  $('fSerial').value = assetSerial(a);
-  $('fDept').value = assetDept(a);
-  $('fUser').value = assetUser(a);
-  $('fPurchase').value = assetPurchase(a);
-  $('fStatus').value = a.status;
-  $('fNote').value = assetNote(a);
+  $('fCode').value =
+    assetCode(a);
+
+  $('fType').value =
+    assetType(a);
+
+  $('fName').value =
+    assetName(a);
+
+  $('fSerial').value =
+    assetSerial(a);
+
+  $('fDept').value =
+    assetDept(a);
+
+  $('fUser').value =
+    assetUser(a);
+
+  $('fPurchaseDate').value =
+    a.purchase_date || '';
+
+  $('fWarrantyMonths').value =
+    a.warranty_months || 12;
+
+  $('fStatus').value =
+    a.status || 'stock';
+
+  $('fNote').value =
+    assetNote(a);
 
   $('assetModal').classList.add('show');
 }
-
 function calcWarrantyEnd(purchaseDate, months){
 
   if(!purchaseDate) return '';
