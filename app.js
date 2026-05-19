@@ -651,7 +651,7 @@ function editAsset(id){
   $('fUser').value =
     assetUser(a);
 
-  $('fPurchaseDate').value =
+  $('fPurchase').value =
     a.purchase_date || '';
 
   $('fWarrantyMonths').value =
@@ -687,7 +687,7 @@ function formAssetPayload(){
   );
 
   const purchaseDate =
-    $('fPurchaseDate').value;
+    $('fPurchase').value;
 
   const warrantyMonths =
     $('fWarrantyMonths').value;
