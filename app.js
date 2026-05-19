@@ -435,15 +435,21 @@ function renderKpi(){
 function matchAsset(a,q){
   q = norm(q);
 
-  const text = [
+const text = [
   assetCode(a),
   assetType(a),
   assetName(a),
   assetSerial(a),
+
   assetCpu(a),
   assetRam(a),
   assetStorage(a),
   assetOs(a),
+
+  assetMonitorName(a),
+  assetMonitorSize(a),
+  assetMonitorSerial(a),
+
   assetDept(a),
   assetUser(a),
   a.status
@@ -1419,6 +1425,9 @@ function exportExcel(){
     assetType(a),
     assetName(a),
     assetSerial(a),
+    assetMonitorName(a),
+  assetMonitorSize(a),
+  assetMonitorSerial(a),
     assetCpu(a),
     assetRam(a),
     assetStorage(a),
@@ -1443,6 +1452,9 @@ function exportExcel(){
         'Loại',
         'Tên tài sản',
         'Serial',
+        'Màn hình',
+        'Kích thước màn hình',
+        'Serial màn hình',
         'CPU',
         'RAM',
         'Ổ cứng',
@@ -1498,6 +1510,8 @@ function exportExcel(){
       assetCode(a),
       assetType(a),
       assetName(a),
+      assetMonitorName(a),
+      assetMonitorSize(a),
       assetCpu(a),
       assetRam(a),
       assetStorage(a),
