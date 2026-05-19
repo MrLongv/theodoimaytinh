@@ -598,8 +598,23 @@ function renderAssets(){
   `).join('') || '<tr><td colspan="9">Không có dữ liệu</td></tr>';
 }
 function renderDept(){
+
+  if($('deptTotalCount')){
+    $('deptTotalCount').textContent =
+      departments.length;
+  }
+
+  if($('deptAssetCount')){
+    $('deptAssetCount').textContent =
+      assets.length;
+  }
+
   $('deptGrid').innerHTML = departments.map(d => {
-    const count = assets.filter(a => assetDept(a) === d.name).length;
+
+    const count = assets.filter(
+      a => assetDept(a) === d.name
+    ).length;
+
     const child = d.children.length
       ? `<p>Nhóm: ${d.children.join(', ')}</p>`
       : '<p>Không có nhóm con</p>';
