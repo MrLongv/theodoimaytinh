@@ -1686,3 +1686,35 @@ async function deleteAssignment(id){
   await loadRemote();
   renderAll();
 }
+function renderReportByDept(){
+
+  const rows = departments.map(d => {
+
+    const list = assets.filter(
+      a => norm(assetDept(a)) === norm(d.name)
+    );
+
+    return {
+      name: d.name,
+      total: list.length,
+      use: list.filter(a => a.status === 'use').length,
+      stock: list.filter(a => a.status === 'stock').length,
+      repair: list.filter(a => a.status === 'repair').length
+    };
+
+  }).filter(r => r.total > 0);
+
+  $('reportDeptRows').innerHTML = rows.map(r => `
+    <tr>
+      <td><b>${r.name}</b></td>
+      <td>${r.total}</td>
+      <td>${r.use}</td>
+      <td>${r.stock}</td>
+      <td>${r.repair}</td>
+    </tr>
+  `).join('') || `
+    <tr>
+      <td colspan="5">Chưa có dữ liệu tài sản theo phòng ban.</td>
+    </tr>
+  `;
+}
