@@ -430,3 +430,139 @@ tbody tr:hover{
     min-width:140px;
   }
 }
+
+
+/* ===== FINAL FIX: topbar + dashboard balance ===== */
+
+.topbar{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:start;
+  gap:18px;
+  margin-bottom:18px;
+}
+
+.top-left{
+  min-width:0;
+}
+
+.top-left h2{
+  line-height:1.15;
+}
+
+.top-actions{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:10px;
+  flex-wrap:wrap;
+  max-width:640px;
+}
+
+.top-actions .btn,
+.top-actions .pill,
+.top-actions label.btn{
+  white-space:nowrap;
+}
+
+.chart-grid{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  margin-bottom:16px;
+}
+
+.chart-grid .section{
+  min-height:340px;
+}
+
+.chart-grid canvas{
+  width:100% !important;
+  height:260px !important;
+}
+
+.compact-stats{
+  grid-template-columns:repeat(3,minmax(0,1fr));
+  align-items:stretch;
+  margin-bottom:16px;
+}
+
+.compact-stats .section{
+  min-height:220px;
+}
+
+.compact-stats .stat-list{
+  gap:8px;
+}
+
+.compact-stats .stat-row{
+  padding:10px 12px;
+  min-height:46px;
+}
+
+.compact-stats .stat-row b{
+  font-size:13px;
+  line-height:1.25;
+}
+
+.compact-stats .stat-row span{
+  font-size:18px;
+}
+
+@media(max-width:1200px){
+  .topbar{
+    grid-template-columns:1fr;
+  }
+
+  .top-actions{
+    justify-content:flex-start;
+    max-width:none;
+  }
+
+  .chart-grid{
+    grid-template-columns:1fr;
+  }
+
+  .chart-grid .section{
+    min-height:320px;
+  }
+}
+
+@media(max-width:900px){
+  .stats-grid,
+  .compact-stats,
+  .dept-grid,
+  .content{
+    grid-template-columns:1fr;
+  }
+}
+
+@media(max-width:760px){
+  .topbar{
+    gap:12px;
+  }
+
+  .top-actions{
+    width:100%;
+    justify-content:flex-start;
+    align-items:stretch;
+  }
+
+  .top-actions .btn,
+  .top-actions label.btn{
+    flex:1 1 140px;
+    text-align:center;
+  }
+
+  .top-actions .pill{
+    flex:1 1 100%;
+    text-align:center;
+  }
+
+  .kpis{
+    grid-template-columns:1fr;
+  }
+
+  .chart-grid .section,
+  .compact-stats .section{
+    min-height:auto;
+  }
+}
