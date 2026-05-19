@@ -275,16 +275,54 @@
       </div>
     </section>
 
-    <section class="view" id="reports">
-      <div class="card section">
-        <div class="section-title"><h3>Báo cáo nhanh</h3><small>có thể nối API xuất Excel sau</small></div>
-        <div class="grid dept-grid">
-          <div class="dept"><h4>Thiết bị theo phòng ban</h4><p>Kiểm kê số lượng từng phòng/xưởng.</p><button class="btn ghost" onclick="alert('Sau này gọi /api/reports/by-department')">Xem báo cáo</button></div>
-          <div class="dept"><h4>Tài sản đang sửa</h4><p>Lọc thiết bị quá hạn sửa chữa.</p><button class="btn ghost" onclick="setView('repairs')">Xem danh sách</button></div>
-          <div class="dept"><h4>Xuất kiểm kê CSV</h4><p>Xuất nhanh dữ liệu hiện tại.</p><button class="btn ghost" onclick="exportCsv()">Xuất CSV</button></div>
-        </div>
+<section class="view" id="reports">
+  <div class="card section">
+    <div class="section-title">
+      <h3>Báo cáo nhanh</h3>
+      <small>Tổng hợp dữ liệu từ D1</small>
+    </div>
+
+    <div class="grid dept-grid">
+      <div class="dept">
+        <h4>Thiết bị theo phòng ban</h4>
+        <p>Kiểm kê số lượng từng phòng/xưởng.</p>
+        <button class="btn ghost" onclick="renderReportByDept()">Xem báo cáo</button>
       </div>
-    </section>
+
+      <div class="dept">
+        <h4>Tài sản đang sửa</h4>
+        <p>Lọc thiết bị đang sửa chữa.</p>
+        <button class="btn ghost" onclick="setView('repairs')">Xem danh sách</button>
+      </div>
+
+      <div class="dept">
+        <h4>Xuất kiểm kê Excel</h4>
+        <p>Xuất toàn bộ danh sách tài sản hiện tại.</p>
+        <button class="btn ghost" onclick="exportExcel()">Xuất Excel</button>
+      </div>
+    </div>
+
+    <div class="table-wrap" style="margin-top:16px">
+      <table>
+        <thead>
+          <tr>
+            <th>Phòng ban</th>
+            <th>Tổng tài sản</th>
+            <th>Đang sử dụng</th>
+            <th>Trong kho</th>
+            <th>Đang sửa</th>
+          </tr>
+        </thead>
+
+        <tbody id="reportDeptRows">
+          <tr>
+            <td colspan="5">Bấm “Xem báo cáo” để tạo báo cáo.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</section>
 
     <section class="view" id="settings">
       <div class="card section">
