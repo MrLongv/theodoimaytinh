@@ -421,6 +421,7 @@ function renderAll(){
   renderAssignments();
   renderActivity();
   refreshAssetOptions();
+  renderCharts();
 }
 
 function renderKpi(){
@@ -1897,4 +1898,174 @@ function renderReportByDept(){
       <td colspan="5">Chưa có dữ liệu tài sản theo phòng ban.</td>
     </tr>
   `;
+}
+let chartTypeObj = null;
+let chartDeptObj = null;
+let chartRepairObj = null;
+
+function renderCharts(){
+
+  if(typeof Chart === 'undefined') return;
+
+  renderTypeChart();
+  renderDeptChart();
+  renderRepairTrendChart();
+}
+
+function destroyChart(obj){
+  if(obj){
+    obj.destroy();
+  }
+}
+
+function renderTypeChart(){
+
+  const el = $('chartType');
+  if(!el) return;
+
+  const map = {};
+
+  assets.forEach(a => {
+    const type = assetType(a) || 'Khác';
+    map[type] = (map[type] || 0) + 1;
+  });
+
+  destroyChart(chartTypeObj);
+
+  chartTypeObj = new Chart(el, {
+    type:'pie',
+    data:{
+      labels:Object.keys(map),
+      datasets:[{
+        data:Object.values(map)
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{
+          position:'bottom'
+        }
+      }
+    }
+  });
+}
+
+function renderDeptChart(){
+
+  const el = $('chartDept');
+  if(!el) return;
+
+  const rows = departments
+    .map(d => {
+      const count = assets.filter(
+        a => norm(assetDept(a)) === norm(d.name)
+      ).length;
+
+      return {
+        name:d.name,
+        count
+      };
+    })
+    .filter(x => x.count > 0)
+    .sort((a,b) => b.count - a.count)
+    .slice(0,10);
+
+  destroyChart(chartDeptObj);
+
+  chartDeptObj = new Chart(el, {
+    type:'bar',
+    data:{
+      labels:rows.map(x => x.name),
+      datasets:[{
+        label:'Số tài sản',
+        data:rows.map(x => x.count)
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{
+          display:false
+        }
+      },
+      scales:{
+        y:{
+          beginAtZero:true,
+          ticks:{
+            precision:0
+          }
+        }
+      }
+    }
+  });
+}
+
+function repairMonthKey(dateText){
+  const d = new Date(dateText);
+
+  if(isNaN(d)){
+    return 'Không rõ';
+  }
+
+  return String(d.getMonth() + 1).padStart(2,'0') + '/' + d.getFullYear();
+}
+
+function renderRepairTrendChart(){
+
+  const el = $('chartRepair');
+  if(!el) return;
+
+  const now = new Date();
+  const months = [];
+
+  for(let i = 5; i >= 0; i--){
+    const d = new Date(now.getFullYear(), now.getMonth() - i, 1);
+    months.push(
+      String(d.getMonth() + 1).padStart(2,'0') + '/' + d.getFullYear()
+    );
+  }
+
+  const map = {};
+  months.forEach(m => map[m] = 0);
+
+  repairs.forEach(r => {
+    const key = repairMonthKey(repairDate(r));
+    if(map[key] !== undefined){
+      map[key]++;
+    }
+  });
+
+  destroyChart(chartRepairObj);
+
+  chartRepairObj = new Chart(el, {
+    type:'line',
+    data:{
+      labels:months,
+      datasets:[{
+        label:'Số phiếu sửa chữa',
+        data:months.map(m => map[m]),
+        tension:.35
+      }]
+    },
+    options:{
+      responsive:true,
+      maintainAspectRatio:false,
+      plugins:{
+        legend:{
+          position:'bottom'
+        }
+      },
+      scales:{
+        y:{
+          beginAtZero:true,
+          ticks:{
+            precision:0
+          }
+        }
+      }
+    }
+  });
 }
