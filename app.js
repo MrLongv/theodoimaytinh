@@ -412,18 +412,29 @@ if($('upgradeStats')){
 }
 }
 function renderAll(){
+
   renderKpi();
+
   renderDashboardStats();
+
   renderDashboardTable();
+
+  renderRecentAssets();
+
   renderAssets();
+
   renderDept();
+
   renderRepairs();
+
   renderAssignments();
+
   renderActivity();
+
   refreshAssetOptions();
+
   renderCharts();
 }
-
 function renderKpi(){
   $('kpiTotal').textContent = assets.length;
   $('kpiUse').textContent = assets.filter(a => a.status === 'use').length;
@@ -2139,6 +2150,90 @@ function renderRepairTrendChart(){
       }
     }
   });
+}
+function renderRecentAssets(){
+
+  const keyword =
+    norm($('quickSearch')?.value || '');
+
+  const status =
+    $('quickStatus')?.value || '';
+
+  const filtered = [...assets]
+
+    .filter(a => {
+
+      const text = [
+        assetCode(a),
+        assetName(a),
+        assetDept(a),
+        assetUser(a)
+      ].join(' ');
+
+      if(
+        keyword &&
+        !norm(text).includes(keyword)
+      ){
+        return false;
+      }
+
+      if(
+        status &&
+        a.status !== status
+      ){
+        return false;
+      }
+
+      return true;
+    })
+
+    .sort((a,b) => {
+
+      const da = new Date(
+        a.updated_at ||
+        a.created_at ||
+        a.purchase_date ||
+        0
+      ).getTime();
+
+      const db = new Date(
+        b.updated_at ||
+        b.created_at ||
+        b.purchase_date ||
+        0
+      ).getTime();
+
+      return db - da;
+    })
+
+    .slice(0, 12);
+
+  $('dashRows').innerHTML =
+    filtered.length
+      ? filtered.map(a => `
+        <tr>
+          <td><b>${assetCode(a)}</b></td>
+
+          <td>${typeBadge(assetType(a))}</td>
+
+          <td>${assetName(a)}</td>
+
+          <td>${assetDept(a)}</td>
+
+          <td>${assetUser(a) || '-'}</td>
+
+          <td>
+            <span class="status ${statusClass(a.status)}">
+              ${statusLabel(a.status)}
+            </span>
+          </td>
+        </tr>
+      `).join('')
+      : `
+        <tr>
+          <td colspan="6">Không có dữ liệu</td>
+        </tr>
+      `;
 }
 function assetMonitorName(a){ return a.monitor_name ?? ''; }
 function assetMonitorSize(a){ return a.monitor_size ?? ''; }
