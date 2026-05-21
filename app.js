@@ -752,29 +752,39 @@ function renderActivity(){
 
 function refreshAssetOptions(){
 
+  const rKey = norm($('rAssetSearch')?.value || '');
+  const aKey = norm($('aAssetSearch')?.value || '');
+
+  function label(a){
+    return `${assetCode(a)} - ${assetName(a)} - ${assetUser(a) || 'Chưa cấp'}`;
+  }
+
+  function match(a, key){
+    if(!key) return true;
+
+    return norm([
+      assetCode(a),
+      assetName(a),
+      assetUser(a),
+      assetDept(a),
+      assetSerial(a)
+    ].join(' ')).includes(key);
+  }
+
   fillSelect(
     'rAsset',
-    assets,
+    assets.filter(a => match(a, rKey)),
     a => assetCode(a),
-    a => `
-${assetCode(a)}
-- ${assetName(a)}
-- ${assetUser(a) || 'Chưa cấp'}
-    `.replace(/\n/g,' ').trim()
+    label
   );
 
   fillSelect(
     'aAsset',
-    assets,
+    assets.filter(a => match(a, aKey)),
     a => assetCode(a),
-    a => `
-${assetCode(a)}
-- ${assetName(a)}
-- ${assetUser(a) || 'Chưa cấp'}
-    `.replace(/\n/g,' ').trim()
+    label
   );
 }
-
 function setView(id){
   document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
   $(id).classList.add('active');
