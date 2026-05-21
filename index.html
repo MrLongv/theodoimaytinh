@@ -340,6 +340,55 @@
         <p>Xuất toàn bộ danh sách tài sản hiện tại.</p>
         <button class="btn ghost" onclick="exportExcel()">Xuất Excel</button>
       </div>
+      <div class="dept">
+  <h4>Xuất báo cáo sửa chữa</h4>
+  <p>Chọn tháng, quý hoặc năm để xuất Excel.</p>
+
+  <select class="field" id="repairReportType">
+    <option value="month">Theo tháng</option>
+    <option value="quarter">Theo quý</option>
+    <option value="year">Theo năm</option>
+  </select>
+
+  <input
+    class="field"
+    id="repairReportYear"
+    type="number"
+    placeholder="Năm"
+    value="2026"
+    style="margin-top:8px"
+  >
+
+  <select class="field" id="repairReportMonth" style="margin-top:8px">
+    <option value="1">Tháng 1</option>
+    <option value="2">Tháng 2</option>
+    <option value="3">Tháng 3</option>
+    <option value="4">Tháng 4</option>
+    <option value="5">Tháng 5</option>
+    <option value="6">Tháng 6</option>
+    <option value="7">Tháng 7</option>
+    <option value="8">Tháng 8</option>
+    <option value="9">Tháng 9</option>
+    <option value="10">Tháng 10</option>
+    <option value="11">Tháng 11</option>
+    <option value="12">Tháng 12</option>
+  </select>
+
+  <select class="field" id="repairReportQuarter" style="margin-top:8px">
+    <option value="1">Quý 1</option>
+    <option value="2">Quý 2</option>
+    <option value="3">Quý 3</option>
+    <option value="4">Quý 4</option>
+  </select>
+
+  <button
+    class="btn ghost"
+    onclick="exportRepairReportExcel()"
+    style="margin-top:10px"
+  >
+    Xuất Excel sửa chữa
+  </button>
+</div>
     </div>
 
     <div class="table-wrap" style="margin-top:16px">
