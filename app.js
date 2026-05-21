@@ -2268,3 +2268,130 @@ function renderRecentAssets(){
 function assetMonitorName(a){ return a.monitor_name ?? ''; }
 function assetMonitorSize(a){ return a.monitor_size ?? ''; }
 function assetMonitorSerial(a){ return a.monitor_serial ?? ''; }
+function exportRepairReportExcel(){
+
+  if(!repairs.length){
+    showToast('Không có dữ liệu sửa chữa để xuất', 'warn', 'Xuất sửa chữa');
+    return;
+  }
+
+  const type = $('repairReportType')?.value || 'month';
+  const year = Number($('repairReportYear')?.value || new Date().getFullYear());
+  const month = Number($('repairReportMonth')?.value || 1);
+  const quarter = Number($('repairReportQuarter')?.value || 1);
+
+  const filtered = repairs.filter(r => {
+    const d = new Date(repairDate(r));
+    if(isNaN(d)) return false;
+
+    const y = d.getFullYear();
+    const m = d.getMonth() + 1;
+
+    if(y !== year) return false;
+
+    if(type === 'month'){
+      return m === month;
+    }
+
+    if(type === 'quarter'){
+      const q = Math.ceil(m / 3);
+      return q === quarter;
+    }
+
+    return true;
+  });
+
+  if(!filtered.length){
+    showToast('Không có sửa chữa trong kỳ đã chọn', 'warn', 'Không có dữ liệu');
+    return;
+  }
+
+  let periodText = '';
+
+  if(type === 'month'){
+    periodText = `THÁNG ${month}/${year}`;
+  }else if(type === 'quarter'){
+    periodText = `QUÝ ${quarter}/${year}`;
+  }else{
+    periodText = `NĂM ${year}`;
+  }
+
+  const rows = filtered.map((r, i) => [
+    i + 1,
+    repairDate(r),
+    repairAssetCode(r),
+    r.asset_name || '',
+    repairIssue(r),
+    repairTech(r),
+    repairCost(r),
+    repairStatusLabel(repairStatus(r))
+  ]);
+
+  const totalCost = filtered.reduce(
+    (sum, r) => sum + Number(repairCost(r) || 0),
+    0
+  );
+
+  const data = [
+    ['CÔNG TY TNHH MAY XK VIỆT HỒNG'],
+    ['BÁO CÁO SỬA CHỮA TÀI SẢN IT'],
+    ['Kỳ báo cáo: ' + periodText],
+    ['Ngày xuất: ' + new Date().toLocaleDateString('vi-VN')],
+    [],
+    [
+      'STT',
+      'Ngày sửa',
+      'Mã tài sản',
+      'Tên tài sản',
+      'Nội dung lỗi',
+      'Người xử lý',
+      'Chi phí',
+      'Trạng thái'
+    ],
+    ...rows,
+    [],
+    ['Tổng số phiếu', filtered.length],
+    ['Tổng chi phí', totalCost]
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(data);
+
+  ws['!merges'] = [
+    {s:{r:0,c:0}, e:{r:0,c:7}},
+    {s:{r:1,c:0}, e:{r:1,c:7}},
+    {s:{r:2,c:0}, e:{r:2,c:7}},
+    {s:{r:3,c:0}, e:{r:3,c:7}}
+  ];
+
+  ws['!cols'] = [
+    {wch:6},
+    {wch:14},
+    {wch:16},
+    {wch:34},
+    {wch:42},
+    {wch:20},
+    {wch:16},
+    {wch:16}
+  ];
+
+  const wb = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    ws,
+    'Bao_cao_sua_chua'
+  );
+
+  const fileName =
+    'bao_cao_sua_chua_' +
+    type + '_' +
+    periodText
+      .toLowerCase()
+      .replaceAll(' ', '_')
+      .replaceAll('/', '-') +
+    '.xlsx';
+
+  XLSX.writeFile(wb, fileName);
+
+  showToast('Đã xuất báo cáo sửa chữa', 'success', 'Thành công');
+}
