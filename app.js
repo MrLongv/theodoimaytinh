@@ -909,7 +909,10 @@ function editAsset(id){
     a.purchase_date || '';
 
   $('fWarrantyMonths').value =
-    a.warranty_months || 12;
+  a.warranty_months !== undefined &&
+  a.warranty_months !== null
+    ? a.warranty_months
+    : 12;
 
   $('fStatus').value =
     a.status || 'stock';
