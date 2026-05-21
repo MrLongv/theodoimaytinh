@@ -751,8 +751,28 @@ function renderActivity(){
 }
 
 function refreshAssetOptions(){
-  fillSelect('rAsset', assets, a => assetCode(a), a => `${assetCode(a)} - ${assetName(a)}`);
-  fillSelect('aAsset', assets, a => assetCode(a), a => `${assetCode(a)} - ${assetName(a)}`);
+
+  fillSelect(
+    'rAsset',
+    assets,
+    a => assetCode(a),
+    a => `
+${assetCode(a)}
+- ${assetName(a)}
+- ${assetUser(a) || 'Chưa cấp'}
+    `.replace(/\n/g,' ').trim()
+  );
+
+  fillSelect(
+    'aAsset',
+    assets,
+    a => assetCode(a),
+    a => `
+${assetCode(a)}
+- ${assetName(a)}
+- ${assetUser(a) || 'Chưa cấp'}
+    `.replace(/\n/g,' ').trim()
+  );
 }
 
 function setView(id){
