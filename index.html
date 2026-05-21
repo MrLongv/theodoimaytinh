@@ -444,7 +444,21 @@
     <div class="modal-box">
       <div class="modal-head"><b>Ghi nhận sửa chữa</b><button class="btn ghost" onclick="closeModal('repairModal')">✕</button></div>
       <div class="modal-body"><div class="form-grid">
-        <div class="form-group"><label>Mã tài sản</label><select id="rAsset"></select></div>
+        <div class="form-group">
+  <label>Tìm tài sản</label>
+
+  <input
+    id="rAssetSearch"
+    class="field"
+    placeholder="Tìm mã, tên máy, người dùng..."
+    oninput="refreshAssetOptions()"
+  >
+</div>
+
+<div class="form-group">
+  <label>Mã tài sản</label>
+  <select id="rAsset"></select>
+</div>
         <div class="form-group"><label>Ngày</label><input id="rDate" type="date"></div>
         <div class="form-group full"><label>Nội dung lỗi</label><input id="rIssue" placeholder="Không lên nguồn, lỗi ổ cứng..."></div>
         <div class="form-group"><label>Người xử lý</label><input id="rTech" value="IT"></div>
@@ -458,7 +472,21 @@
     <div class="modal-box">
       <div class="modal-head"><b>Tạo phiếu cấp phát / thu hồi</b><button class="btn ghost" onclick="closeModal('assignModal')">✕</button></div>
       <div class="modal-body"><div class="form-grid">
-        <div class="form-group"><label>Mã tài sản</label><select id="aAsset"></select></div>
+        <div class="form-group">
+  <label>Tìm tài sản</label>
+
+  <input
+    id="aAssetSearch"
+    class="field"
+    placeholder="Tìm mã, tên máy, người dùng..."
+    oninput="refreshAssetOptions()"
+  >
+</div>
+
+<div class="form-group">
+  <label>Mã tài sản</label>
+  <select id="aAsset"></select>
+</div>
         <div class="form-group"><label>Ngày</label><input id="aDate" type="date"></div>
         <div class="form-group"><label>Loại phiếu</label><select id="aType"><option>Cấp phát</option><option>Thu hồi</option><option>Điều chuyển</option></select></div>
         <div class="form-group"><label>Người nhận / trả</label><input id="aUser"></div>
