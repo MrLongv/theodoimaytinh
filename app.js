@@ -2609,10 +2609,15 @@ function renderPrinterServices(){
       <td>${printerServiceTech(p)}</td>
 
       <td>${printerServiceNote(p)}</td>
+      <td>
+  <button class="btn ghost" onclick="editPrinterService(${p.id})">Sửa</button>
+  <button class="btn ghost" onclick="markPrinterServiceDone(${p.id})">Hoàn tất</button>
+  <button class="btn danger" onclick="deletePrinterService(${p.id})">Xóa</button>
+</td>
     </tr>
   `).join('') || `
     <tr>
-      <td colspan="9">
+      <td colspan="10">
         Chưa có dữ liệu thay mực / sửa máy in
       </td>
     </tr>
