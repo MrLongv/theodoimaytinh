@@ -31,6 +31,7 @@
       <button data-view="assets">💻 Tài sản</button>
       <button data-view="departments">🏢 Phòng ban</button>
       <button data-view="repairs">🛠️ Sửa chữa</button>
+      <button data-view="printerServices">🖨️ Máy in / Mực in</button>
       <button data-view="assignments">🔁 Cấp phát / Thu hồi</button>
       <button data-view="reports">📄 Báo cáo</button>
       <button data-view="settings">⚙️ Cấu hình API</button>
@@ -299,7 +300,56 @@
 </tr></thead><tbody id="repairRows"></tbody></table></div>
       </div>
     </section>
+<section class="view" id="printerServices">
 
+  <div class="card section">
+
+    <div class="section-title">
+      <h3>Theo dõi thay mực / sửa máy in</h3>
+
+      <button
+        class="btn blue"
+        onclick="openPrinterServiceModal()"
+      >
+        + Ghi nhận
+      </button>
+    </div>
+
+    <div class="table-wrap">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Ngày</th>
+            <th>Máy in</th>
+            <th>Loại</th>
+            <th>Vật tư / nội dung</th>
+            <th>SL</th>
+            <th>Đơn giá</th>
+            <th>Thành tiền</th>
+            <th>Người xử lý</th>
+            <th>Ghi chú</th>
+          </tr>
+        </thead>
+
+        <tbody id="printerServiceRows">
+
+          <tr>
+            <td colspan="9">
+              Chưa có dữ liệu thay mực / sửa máy in
+            </td>
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </div>
+
+</section>
     <section class="view" id="assignments">
       <div class="card section">
         <div class="section-title"><h3>Lịch sử cấp phát / thu hồi</h3><button class="btn blue" onclick="openAssignModal()">+ Tạo phiếu</button></div>
@@ -545,6 +595,127 @@
       <div class="modal-foot"><button class="btn ghost" onclick="closeModal('assignModal')">Hủy</button><button class="btn primary" onclick="saveAssignment()">Lưu phiếu</button></div>
     </div>
   </div>
+  <div class="modal" id="printerServiceModal">
+
+  <div class="modal-box">
+
+    <div class="modal-head">
+      <b>Ghi nhận thay mực / sửa máy in</b>
+
+      <button
+        class="btn ghost"
+        onclick="closeModal('printerServiceModal')"
+      >
+        ✕
+      </button>
+    </div>
+
+    <div class="modal-body">
+
+      <div class="form-grid">
+
+        <div class="form-group">
+          <label>Tìm máy in</label>
+
+          <input
+            id="pAssetSearch"
+            class="field"
+            placeholder="Tìm mã, tên máy, người dùng..."
+            oninput="refreshPrinterAssetOptions()"
+          >
+        </div>
+
+        <div class="form-group">
+          <label>Máy in</label>
+
+          <select id="pAsset"></select>
+        </div>
+
+        <div class="form-group">
+          <label>Ngày</label>
+
+          <input id="pDate" type="date">
+        </div>
+
+        <div class="form-group">
+          <label>Loại ghi nhận</label>
+
+          <select id="pType">
+            <option>Thay mực</option>
+            <option>Thay linh kiện</option>
+            <option>Sửa máy in</option>
+          </select>
+        </div>
+
+        <div class="form-group full">
+          <label>Vật tư / nội dung</label>
+
+          <input
+            id="pItem"
+            placeholder="Mực Canon 2900 / Drum / Gạt / Sửa kẹt giấy..."
+          >
+        </div>
+
+        <div class="form-group">
+          <label>Số lượng</label>
+
+          <input
+            id="pQty"
+            type="number"
+            value="1"
+          >
+        </div>
+
+        <div class="form-group">
+          <label>Đơn giá</label>
+
+          <input
+            id="pPrice"
+            type="number"
+            value="0"
+          >
+        </div>
+
+        <div class="form-group">
+          <label>Người xử lý</label>
+
+          <input
+            id="pTech"
+            value="IT"
+          >
+        </div>
+
+        <div class="form-group full">
+          <label>Ghi chú</label>
+
+          <input id="pNote">
+        </div>
+
+      </div>
+
+    </div>
+
+    <div class="modal-foot">
+
+      <button
+        class="btn ghost"
+        onclick="closeModal('printerServiceModal')"
+      >
+        Hủy
+      </button>
+
+      <button
+        class="btn primary"
+        onclick="savePrinterService()"
+      >
+        Lưu
+      </button>
+
+    </div>
+
+  </div>
+
+</div>
   <div id="toastBox" class="toast-box"></div>
 
 <div id="confirmModal" class="confirm-modal">
