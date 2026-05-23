@@ -2730,3 +2730,162 @@ async function deletePrinterService(id){
   await loadRemote();
   renderAll();
 }
+function exportPrinterServiceReportExcel(){
+
+  if(!printerServices.length){
+    showToast(
+      'Không có dữ liệu máy in / mực in để xuất',
+      'warn',
+      'Xuất máy in'
+    );
+    return;
+  }
+
+  const type = $('printerReportType')?.value || 'month';
+  const year = Number($('printerReportYear')?.value || new Date().getFullYear());
+  const month = Number($('printerReportMonth')?.value || 1);
+  const quarter = Number($('printerReportQuarter')?.value || 1);
+
+  const filtered = printerServices.filter(p => {
+
+    const d = new Date(printerServiceDate(p));
+
+    if(isNaN(d)) return false;
+
+    const y = d.getFullYear();
+    const m = d.getMonth() + 1;
+
+    if(y !== year) return false;
+
+    if(type === 'month'){
+      return m === month;
+    }
+
+    if(type === 'quarter'){
+      const q = Math.ceil(m / 3);
+      return q === quarter;
+    }
+
+    return true;
+  });
+
+  if(!filtered.length){
+    showToast(
+      'Không có dữ liệu máy in trong kỳ đã chọn',
+      'warn',
+      'Không có dữ liệu'
+    );
+    return;
+  }
+
+  let periodText = '';
+
+  if(type === 'month'){
+    periodText = `THÁNG ${month}/${year}`;
+  }else if(type === 'quarter'){
+    periodText = `QUÝ ${quarter}/${year}`;
+  }else{
+    periodText = `NĂM ${year}`;
+  }
+
+  const rows = filtered.map((p, i) => [
+    i + 1,
+    printerServiceDate(p),
+    printerAssetCode(p),
+    printerAssetName(p),
+    p.assigned_to || '',
+    printerServiceType(p),
+    printerServiceItem(p),
+    printerServiceQty(p),
+    printerServicePrice(p),
+    printerServiceTotal(p),
+    printerServiceTech(p),
+    printerServiceNote(p)
+  ]);
+
+  const totalQty = filtered.reduce(
+    (sum, p) => sum + Number(printerServiceQty(p) || 0),
+    0
+  );
+
+  const totalCost = filtered.reduce(
+    (sum, p) => sum + Number(printerServiceTotal(p) || 0),
+    0
+  );
+
+  const data = [
+    ['CÔNG TY TNHH MAY XK VIỆT HỒNG'],
+    ['BÁO CÁO THAY MỰC / SỬA MÁY IN'],
+    ['Kỳ báo cáo: ' + periodText],
+    ['Ngày xuất: ' + new Date().toLocaleDateString('vi-VN')],
+    [],
+    [
+      'STT',
+      'Ngày',
+      'Mã máy in',
+      'Tên máy in',
+      'Người dùng',
+      'Loại ghi nhận',
+      'Vật tư / Nội dung',
+      'Số lượng',
+      'Đơn giá',
+      'Thành tiền',
+      'Người xử lý',
+      'Ghi chú'
+    ],
+    ...rows,
+    [],
+    ['Tổng số phiếu', filtered.length],
+    ['Tổng số lượng', totalQty],
+    ['Tổng chi phí', totalCost]
+  ];
+
+  const ws = XLSX.utils.aoa_to_sheet(data);
+
+  ws['!merges'] = [
+    {s:{r:0,c:0}, e:{r:0,c:11}},
+    {s:{r:1,c:0}, e:{r:1,c:11}},
+    {s:{r:2,c:0}, e:{r:2,c:11}},
+    {s:{r:3,c:0}, e:{r:3,c:11}}
+  ];
+
+  ws['!cols'] = [
+    {wch:6},
+    {wch:14},
+    {wch:16},
+    {wch:30},
+    {wch:20},
+    {wch:18},
+    {wch:36},
+    {wch:10},
+    {wch:16},
+    {wch:16},
+    {wch:18},
+    {wch:28}
+  ];
+
+  const wb = XLSX.utils.book_new();
+
+  XLSX.utils.book_append_sheet(
+    wb,
+    ws,
+    'Bao_cao_may_in'
+  );
+
+  const fileName =
+    'bao_cao_may_in_muc_in_' +
+    type + '_' +
+    periodText
+      .toLowerCase()
+      .replaceAll(' ', '_')
+      .replaceAll('/', '-') +
+    '.xlsx';
+
+  XLSX.writeFile(wb, fileName);
+
+  showToast(
+    'Đã xuất báo cáo máy in / mực in',
+    'success',
+    'Thành công'
+  );
+}
