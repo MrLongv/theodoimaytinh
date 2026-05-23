@@ -2559,25 +2559,49 @@ async function savePrinterService(){
   }
 
   if(!payload.item_name){
-    showToast('Nhập vật tư hoặc nội dung sửa chữa', 'warn', 'Thiếu nội dung');
+    showToast(
+      'Nhập vật tư hoặc nội dung sửa chữa',
+      'warn',
+      'Thiếu nội dung'
+    );
     return;
   }
 
-  await saveRemote(
-    '/api/printer-services',
-    payload,
-    'POST'
-  );
+  if(editingPrinterServiceId){
+
+    await saveRemote(
+      '/api/printer-services/' + editingPrinterServiceId,
+      payload,
+      'PUT'
+    );
+
+    showToast(
+      'Đã cập nhật phiếu máy in',
+      'success',
+      'Thành công'
+    );
+
+  }else{
+
+    await saveRemote(
+      '/api/printer-services',
+      payload,
+      'POST'
+    );
+
+    showToast(
+      'Đã ghi nhận thay mực / sửa máy in',
+      'success',
+      'Thành công'
+    );
+  }
+
+  editingPrinterServiceId = null;
 
   closeModal('printerServiceModal');
 
-  showToast(
-    'Đã ghi nhận thay mực / sửa máy in',
-    'success',
-    'Thành công'
-  );
-
   await loadRemote();
+
   renderAll();
 }
 
@@ -2622,4 +2646,87 @@ function renderPrinterServices(){
       </td>
     </tr>
   `;
+}
+let editingPrinterServiceId = null;
+
+function printerServiceStatus(p){
+  return p.status ?? 'processing';
+}
+
+function editPrinterService(id){
+
+  const p = printerServices.find(x => x.id === id);
+  if(!p) return;
+
+  editingPrinterServiceId = id;
+
+  $('pDate').value = printerServiceDate(p);
+  $('pType').value = printerServiceType(p);
+  $('pItem').value = printerServiceItem(p);
+  $('pQty').value = printerServiceQty(p);
+  $('pPrice').value = printerServicePrice(p);
+  $('pTech').value = printerServiceTech(p);
+  $('pNote').value = printerServiceNote(p);
+
+  refreshPrinterAssetOptions();
+
+  $('pAsset').value = printerAssetCode(p);
+
+  $('printerServiceModal').classList.add('show');
+}
+
+async function markPrinterServiceDone(id){
+
+  const p = printerServices.find(x => x.id === id);
+  if(!p) return;
+
+  const ok = await showConfirm(
+    'Đánh dấu phiếu này là hoàn tất?',
+    'Hoàn tất máy in / mực in'
+  );
+
+  if(!ok) return;
+
+  await saveRemote(
+    '/api/printer-services/' + id,
+    {
+      asset_id: p.asset_id,
+      service_date: printerServiceDate(p),
+      service_type: printerServiceType(p),
+      item_name: printerServiceItem(p),
+      quantity: printerServiceQty(p),
+      unit_price: printerServicePrice(p),
+      total_cost: printerServiceTotal(p),
+      technician: printerServiceTech(p),
+      status: 'done',
+      note: printerServiceNote(p)
+    },
+    'PUT'
+  );
+
+  showToast('Đã hoàn tất phiếu', 'success', 'Thành công');
+
+  await loadRemote();
+  renderAll();
+}
+
+async function deletePrinterService(id){
+
+  const ok = await showConfirm(
+    'Bạn có chắc muốn xóa phiếu này?',
+    'Xóa phiếu máy in'
+  );
+
+  if(!ok) return;
+
+  await saveRemote(
+    '/api/printer-services/' + id,
+    null,
+    'DELETE'
+  );
+
+  showToast('Đã xóa phiếu', 'success', 'Thành công');
+
+  await loadRemote();
+  renderAll();
 }
