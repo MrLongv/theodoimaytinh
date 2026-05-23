@@ -2458,14 +2458,21 @@ function printerServiceNote(p){
 }
 
 function isPrinterAsset(a){
+
   const t = norm(assetType(a));
   const n = norm(assetName(a));
 
   return (
     t.includes('may in') ||
     t.includes('printer') ||
+
     n.includes('may in') ||
-    n.includes('printer')
+    n.includes('printer') ||
+
+    n.includes('canon') ||
+    n.includes('hp') ||
+    n.includes('epson') ||
+    n.includes('brother')
   );
 }
 
