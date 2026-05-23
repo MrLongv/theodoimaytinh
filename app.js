@@ -28,6 +28,7 @@ const statuses = [
 let assets = [];
 let repairs = [];
 let assignments = [];
+let printerServices = [];
 
 let editingId = null;
 let assetPage = 1;
@@ -282,7 +283,22 @@ async function loadRemote(){
         assignments = assignmentData;
       }
     }
+const ps = await fetch(
+  CURRENT_API_BASE + '/api/printer-services',
+  {
+    headers:{
+      Authorization:'Bearer ' + IT_TOKEN
+    }
+  }
+);
 
+if(ps.ok){
+  const printerData = await ps.json();
+
+  if(Array.isArray(printerData)){
+    printerServices = printerData;
+  }
+}
   }catch(e){
 
     console.warn(
@@ -428,6 +444,8 @@ function renderAll(){
   renderRepairs();
 
   renderAssignments();
+  
+  renderPrinterServices();
 
   renderActivity();
 
@@ -798,6 +816,7 @@ function setView(id){
     assets:['Danh sách tài sản','Quản lý chi tiết từng thiết bị.'],
     departments:['Phòng ban / đơn vị','Cơ cấu phòng ban đầy đủ để gắn tài sản.'],
     repairs:['Sửa chữa / bảo trì','Theo dõi lỗi, chi phí và người xử lý.'],
+    printerServices:['Máy in / Mực in','Theo dõi thay mực, linh kiện và sửa máy in.'],
     assignments:['Cấp phát / Thu hồi','Lịch sử bàn giao thiết bị.'],
     reports:['Báo cáo','Báo cáo kiểm kê và xuất dữ liệu.'],
     settings:['Cấu hình API','Kết nối Cloudflare Worker + D1.']
@@ -2397,4 +2416,198 @@ function exportRepairReportExcel(){
   XLSX.writeFile(wb, fileName);
 
   showToast('Đã xuất báo cáo sửa chữa', 'success', 'Thành công');
+}
+function printerAssetCode(p){
+  return p.asset_code ?? '';
+}
+
+function printerAssetName(p){
+  return p.asset_name ?? '';
+}
+
+function printerServiceDate(p){
+  return p.service_date ?? '';
+}
+
+function printerServiceType(p){
+  return p.service_type ?? '';
+}
+
+function printerServiceItem(p){
+  return p.item_name ?? '';
+}
+
+function printerServiceQty(p){
+  return Number(p.quantity || 0);
+}
+
+function printerServicePrice(p){
+  return Number(p.unit_price || 0);
+}
+
+function printerServiceTotal(p){
+  return Number(p.total_cost || 0);
+}
+
+function printerServiceTech(p){
+  return p.technician ?? '';
+}
+
+function printerServiceNote(p){
+  return p.note ?? '';
+}
+
+function isPrinterAsset(a){
+  const t = norm(assetType(a));
+  const n = norm(assetName(a));
+
+  return (
+    t.includes('may in') ||
+    t.includes('printer') ||
+    n.includes('may in') ||
+    n.includes('printer')
+  );
+}
+
+function refreshPrinterAssetOptions(){
+
+  const key = norm($('pAssetSearch')?.value || '');
+
+  const printers = assets.filter(isPrinterAsset);
+
+  function label(a){
+    return `${assetCode(a)} - ${assetName(a)} - ${assetUser(a) || 'Chưa cấp'}`;
+  }
+
+  function match(a){
+    if(!key) return true;
+
+    return norm([
+      assetCode(a),
+      assetName(a),
+      assetUser(a),
+      assetDept(a),
+      assetSerial(a)
+    ].join(' ')).includes(key);
+  }
+
+  fillSelect(
+    'pAsset',
+    printers.filter(match),
+    a => assetCode(a),
+    label
+  );
+}
+
+function openPrinterServiceModal(){
+
+  $('pDate').value = todayISO();
+  $('pType').value = 'Thay mực';
+  $('pItem').value = '';
+  $('pQty').value = 1;
+  $('pPrice').value = 0;
+  $('pTech').value = 'IT';
+  $('pNote').value = '';
+
+  if($('pAssetSearch')){
+    $('pAssetSearch').value = '';
+  }
+
+  refreshPrinterAssetOptions();
+
+  $('printerServiceModal').classList.add('show');
+}
+
+function printerServicePayload(){
+
+  const code = $('pAsset').value;
+
+  const asset = assets.find(
+    a => assetCode(a) === code
+  );
+
+  const qty = Number($('pQty').value || 0);
+  const price = Number($('pPrice').value || 0);
+
+  return {
+    asset_id: asset ? asset.id : null,
+    service_date: $('pDate').value,
+    service_type: $('pType').value,
+    item_name: $('pItem').value.trim(),
+    quantity: qty,
+    unit_price: price,
+    total_cost: qty * price,
+    technician: $('pTech').value.trim() || 'IT',
+    note: $('pNote').value.trim()
+  };
+}
+
+async function savePrinterService(){
+
+  const payload = printerServicePayload();
+
+  if(!payload.asset_id){
+    showToast('Chọn máy in', 'warn', 'Thiếu máy in');
+    return;
+  }
+
+  if(!payload.item_name){
+    showToast('Nhập vật tư hoặc nội dung sửa chữa', 'warn', 'Thiếu nội dung');
+    return;
+  }
+
+  await saveRemote(
+    '/api/printer-services',
+    payload,
+    'POST'
+  );
+
+  closeModal('printerServiceModal');
+
+  showToast(
+    'Đã ghi nhận thay mực / sửa máy in',
+    'success',
+    'Thành công'
+  );
+
+  await loadRemote();
+  renderAll();
+}
+
+function renderPrinterServices(){
+
+  if(!$('printerServiceRows')) return;
+
+  $('printerServiceRows').innerHTML = printerServices.map(p => `
+    <tr>
+      <td>${printerServiceDate(p)}</td>
+
+      <td>
+        <b>${printerAssetCode(p)}</b>
+        <div style="font-size:12px;color:var(--muted)">
+          ${printerAssetName(p)}
+        </div>
+      </td>
+
+      <td>${printerServiceType(p)}</td>
+
+      <td>${printerServiceItem(p)}</td>
+
+      <td>${printerServiceQty(p)}</td>
+
+      <td>${money(printerServicePrice(p))}</td>
+
+      <td><b>${money(printerServiceTotal(p))}</b></td>
+
+      <td>${printerServiceTech(p)}</td>
+
+      <td>${printerServiceNote(p)}</td>
+    </tr>
+  `).join('') || `
+    <tr>
+      <td colspan="9">
+        Chưa có dữ liệu thay mực / sửa máy in
+      </td>
+    </tr>
+  `;
 }
